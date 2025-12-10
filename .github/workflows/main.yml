@@ -10,8 +10,7 @@ on:
 
 jobs:
   run-script:
-    # 💡 수정: GitHub 제공 러너(ubuntu-latest) 대신 Self-hosted Runner 사용
-    #runs-on: self-hosted
+    # 💡 수정: GitHub 제공 러너(ubuntu-latest) 사용
     runs-on: ubuntu-latest
     
     steps:
@@ -23,7 +22,6 @@ jobs:
           echo "Scheduled run detected. Waiting 5 minutes (300 seconds) for time alignment."
           sleep 300s
           
-        
       # 1. 저장소 체크아웃 (코드 가져오기)
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,17 +33,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x' # 원하는 파이썬 버전 지정 (예: '3.10')
+          python-version: '3.x'
           
-      # 3. 필요한 라이브러리 설치
-      - name: Install dependencies
+      # 3. 필요한 라이브러리 설치 (selenium 및 pandas, webdriver-manager 추가)
+      - name: Install dependencies (Selenium, pandas)
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # requirements.txt 파일이 있다면 설치
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          # Selenium, pandas, webdriver-manager를 명시적으로 설치
+          pip install selenium pandas webdriver-manager
           
-      # 4. Python 스크립트 실행
+      # 4-1. NIA.py Python 스크립트 실행
       - name: Run NIA.py script
         run: python codes/pycode/NIA.py
+
+      # 4-2. aitimes.py Python 스크립트 실행 (추가된 부분)
+      - name: Run aitimes.py script
+        run: python codes/pycode/aitimes.py
+        
+      # 4-3. codes 디렉토리 파일 목록 출력
       - name: List files in codes directory
         run: |
           echo "--- Files in codes/ after running script ---"
@@ -56,6 +65,8 @@ jobs:
       - name: Commit and Push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: 'codes/nia.json'
-          commit_message: 'Automated NIA data update [skip ci]'
+          # 💡 파일 패턴 수정: NIA.json 외에 aitimes.py가 생성하는 파일도 커밋해야 할 수 있습니다.
+          # 만약 aitimes.py가 'codes/' 디렉토리에 'aitimes_articles.csv'와 같은 파일을 생성한다면 패턴을 수정하세요.
+          file_pattern: 'codes/nia.json codes/pycode/aitimes.py' # aitimes.py가 생성하는 파일이 있다면 추가해야 합니다.
+          commit_message: 'Automated data update [skip ci]'
           branch: main # 또는 master (사용하는 브랜치 이름으로 변경)
