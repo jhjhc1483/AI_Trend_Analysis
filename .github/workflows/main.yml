@@ -1,0 +1,61 @@
+name: Run Python Script and Commit
+
+# 💡 실행 주기 설정: 한국 시간 06:05에 실행되도록 UTC 21:00 예약 후 5분 대기
+on:
+  schedule:
+    # UTC 21:00 = KST 06:00. 5분 대기 후 06:05에 작업을 시작합니다.
+    - cron: '00 21 * * *'
+  # 💡 수동 실행을 위한 설정 (Actions 탭에서 Run workflow 버튼으로 실행 가능)
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    # 💡 수정: GitHub 제공 러너(ubuntu-latest) 대신 Self-hosted Runner 사용
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 0. 딜레이 완화를 위한 대기 (5분 대기 후 목표 시간인 06:05 KST에 가깝게 실행)
+      # 조건: 워크플로우가 'schedule' 이벤트로 실행되었을 때만 이 단계를 실행합니다.
+      - name: Wait for 5 minutes to align with target time (06:05 KST)
+        if: github.event_name == 'schedule'
+        run: |
+          echo "Scheduled run detected. Waiting 5 minutes (300 seconds) for time alignment."
+          sleep 300s
+          
+        
+      # 1. 저장소 체크아웃 (코드 가져오기)
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # 💡 토큰 설정: 결과를 커밋하기 위해 필요 (permissions 설정 권장)
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      # 2. Python 환경 설정
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # 원하는 파이썬 버전 지정 (예: '3.10')
+          
+      # 3. 필요한 라이브러리 설치
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      # 4. Python 스크립트 실행
+      - name: Run NIA.py script
+        run: python codes/pycode/NIA.py
+      - name: List files in codes directory
+        run: |
+          echo "--- Files in codes/ after running script ---"
+          ls -l codes/
+          echo "---------------------------------------------"
+          
+      # 5. 변경된 파일 커밋 및 푸시
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/nia.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)
