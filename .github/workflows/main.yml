@@ -1,87 +1,61 @@
-name: Run Python Script and Commit
+# .github/workflows/main.yml
 
-# 💡 실행 주기 설정: 한국 시간 06:05에 실행되도록 UTC 21:00 예약 후 5분 대기
+name: Run Python Scripts Daily
+
 on:
-  schedule:
-    # UTC 21:00 = KST 06:00. 5분 대기 후 06:05에 작업을 시작합니다.
-    - cron: '00 21 * * *'
-  # 💡 수동 실행을 위한 설정 (Actions 탭에서 Run workflow 버튼으로 실행 가능)
+  # 1. 수동 실행 (Manual trigger) 설정
   workflow_dispatch:
 
+  # 2. 스케줄 실행 (Scheduled trigger) 설정: 매일 한국 시간 오전 6시
+  # UTC 기준 시간으로 변환해야 합니다. 한국 시간 (KST)은 UTC+9 이므로,
+  # 한국 시간 오전 6시는 UTC 기준 오후 9시 (21시)입니다.
+  schedule:
+    # '0 21 * * *' : 매일 21시 0분에 실행 (UTC 기준)
+    - cron: '0 21 * * *'
+
 jobs:
-  run-script:
-    # 💡 수정: GitHub 제공 러너(ubuntu-latest) 대신 Self-hosted Runner 사용
-    #runs-on: self-hosted
+  build:
     runs-on: ubuntu-latest
     
+    # 작업 환경 설정
     steps:
-      # 0. 딜레이 완화를 위한 대기 (5분 대기 후 목표 시간인 06:05 KST에 가깝게 실행)
-      # 조건: 워크플로우가 'schedule' 이벤트로 실행되었을 때만 이 단계를 실행합니다.
-      - name: Wait for 5 minutes to align with target time (06:05 KST)
-        if: github.event_name == 'schedule'
-        run: |
-          echo "Scheduled run detected. Waiting 5 minutes (300 seconds) for time alignment."
-          sleep 300s
-          
-        
-      # 1. 저장소 체크아웃 (코드 가져오기)
-      - name: Checkout code
+      - name: Checkout repository
+        # 저장소 코드를 워크플로 러너로 가져옵니다.
         uses: actions/checkout@v4
-        # 💡 토큰 설정: 결과를 커밋하기 위해 필요 (permissions 설정 권장)
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          
-      # 2. Python 환경 설정
+
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # Python 3.10 버전을 설정합니다.
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x' # 원하는 파이썬 버전 지정 (예: '3.10')
+          python-version: '3.10'
 
-      # 💡 수정된 워크플로우 YAML (jobs: run-script: steps 내부)
-
-      # ⭐ 수정된 단계: Selenium을 위한 시스템 종속성 설치 ⭐
-      - name: Install system dependencies for Chromium/Selenium
-        run: |
-          # update는 이미 로그에서 성공적으로 완료되었습니다.
-          # sudo apt-get update
-          
-          # 24.04 환경에 맞게 패키지 목록을 수정합니다.
-          # 1. libasound2 -> libasound2t64로 변경
-          # 2. libgconf-2-4 제거 (찾을 수 없는 패키지)
-          # 3. chromium-browser 대신 chromium 설치 시도
-          sudo apt-get install -y \
-            chromium \
-            libnss3 \
-            libasound2t64 \
-            libatk1.0-0 \
-            libgtk-3-0
-
-      # 3. 필요한 라이브러리 설치
-      - name: Install dependencies (including selenium, webdriver-manager)
+      - name: Install dependencies
+        # 3. 필요한 Python 라이브러리들을 설치합니다.
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
-      # 4. Python 스크립트 실행 (aitimes.py 추가)
-      - name: Run NIA.py script
-        run: python codes/pycode/NIA.py
+          # Selenium, requests, beautifulsoup4, pandas, webdriver_manager 설치
+          pip install selenium requests beautifulsoup4 pandas webdriver-manager
         
-      # ⭐ 추가된 스크립트 실행 단계 ⭐
-      - name: Run aitimes.py script
-        run: python codes/pycode/aitimes.py
-        
-      - name: List files in codes directory
+      # Selenium WebDriver 설정 (Chrome)
+      # GitHub Actions 환경에서 Selenium을 사용하기 위한 추가 설정입니다.
+      - name: Set up Chrome for Selenium
         run: |
-          echo "--- Files in codes/ after running scripts ---"
-          ls -l codes/
-          echo "---------------------------------------------"
+          # Chrome 설치 (ubuntu-latest 이미지에는 보통 기본적으로 설치되어 있지만, 명시적으로 실행)
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
           
-      # 5. 변경된 파일 커밋 및 푸시
-      # 💡 만약 aitimes.py도 커밋할 파일이 있다면 file_pattern을 조정해야 합니다.
-      - name: Commit and Push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          # 만약 aitimes.py가 codes/aitimes.json 같은 다른 파일을 생성한다면 패턴을 'codes/*' 등으로 변경해야 합니다.
-          file_pattern: 'codes/nia.json'
-          commit_message: 'Automated data update [skip ci]' # 커밋 메시지 수정
-          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)
+      # 4. codes/pycode/aitimes.py 실행 (Selenium 사용 - 헤드리스)
+      # aitimes.py는 Selenium을 사용하므로 먼저 실행하는 것이 좋습니다.
+      - name: Run aitimes.py (Headless Selenium)
+        run: |
+          python codes/pycode/aitimes.py
+
+      # 5. codes/pycode/NIA.py 실행
+      - name: Run NIA.py
+        run: |
+          python codes/pycode/NIA.py
+          
+      # 향후 추가될 다른 Python 스크립트 실행을 위한 주석 처리된 예시
+      # - name: Run another_script.py
+      #   run: |
+      #     python codes/pycode/another_script.py
