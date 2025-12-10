@@ -15,16 +15,16 @@ import json
 chrome_options = Options()
 # =============================================================
 # 💡 헤드리스 모드 활성화 (가장 중요한 변경)
-#chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--headless=new")
 # =============================================================
 
 # 불필요한 에러 메시지 없애기
 chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
 # 기타 헤드리스 환경 최적화 옵션 (선택적)
-# chrome_options.add_argument("--no-sandbox")
-# chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 # # 창 크기 설정 (헤드리스 모드에서 렌더링을 위해 필요할 수 있음)
-# chrome_options.add_argument("window-size=1920x1080") 
+chrome_options.add_argument("window-size=1920x1080") 
 
 # 2. Service 객체 생성 및 WebDriver 초기화
 service = Service(executable_path=ChromeDriverManager().install())
