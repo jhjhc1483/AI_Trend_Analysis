@@ -59,3 +59,21 @@ jobs:
       # - name: Run another_script.py
       #   run: |
       #     python codes/pycode/another_script.py
+
+      # =============================================================
+      # 💡 추가된 핵심 단계: 생성된 파일(codes/aitimes.json)을 저장소에 커밋
+      # =============================================================
+                
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/aitimes.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/nia.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)          
