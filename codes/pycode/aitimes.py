@@ -13,27 +13,33 @@ import pandas as pd
 import os
 import json
 
-
-# --- Options 설정 부분 수정 ---
+# Chrome 옵션 설정
 chrome_options = webdriver.ChromeOptions()
 
-# 1. Headless 모드 설정 (GUI 없이 백그라운드에서 실행)
+# 1. ⭐ Headless 모드 활성화 (필수)
 chrome_options.add_argument('--headless')
 
-# 2. 샌드박스 비활성화 (GitHub Actions/Docker 환경에서 필수)
-chrome_options.add_argument('--no-sandbox')
+# 2. ⭐ 샌드박스 비활성화 (GitHub Actions에서 충돌 방지를 위해 거의 필수)
+chrome_options.add_argument('--no-sandbox') 
 
-# 3. /dev/shm 사용 비활성화 (리소스 제한 환경에서 충돌 방지)
+# 3. ⭐ /dev/shm 사용 비활성화 (리소스 제한 환경에서 충돌 방지)
 chrome_options.add_argument('--disable-dev-shm-usage')
 
-# 4. 기타 유용한 옵션들
+# 4. Chrome/Chromium 경로 명시 (선택적이지만, 확실한 경로 지정을 위해 유용)
+# GitHub Runner에서 설치된 Chromium의 일반적인 경로입니다.
+# 만약 오류가 계속되면 이 라인의 주석을 해제해 보세요.
+# chrome_options.binary_location = '/usr/bin/chromium' 
+
+# 5. 기타 유용한 옵션
 chrome_options.add_argument('--window-size=1920,1080')
 chrome_options.add_argument('--disable-gpu') # GPU 사용 비활성화
-# ------------------------------
 
-# service와 options를 사용하여 브라우저 초기화
-# 예시: service = Service(ChromeDriverManager().install())
-# browser = webdriver.Chrome(service=service, options=chrome_options)
+# 6. Service 설정 (webdriver_manager 사용 가정)
+service = Service(ChromeDriverManager().install()) # <-- webdriver_manager를 사용한다면 이 라인을 사용합니다.
+# service = Service(executable_path="/usr/bin/chromedriver") # <-- 수동 드라이버 경로 지정 시
+
+# 7. 드라이버 초기화
+browser = webdriver.Chrome(service=service, options=chrome_options)
 
 
 # 1. 드라이버 실행 파일 경로 지정
