@@ -36,8 +36,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x' # 원하는 파이썬 버전 지정 (예: '3.10')
+      # ⭐ 새롭게 추가된 단계: Selenium을 위한 시스템 종속성 설치 ⭐
+      - name: Install system dependencies for Chromium/Selenium
+        run: |
+          sudo apt-get update
+          # 필요한 라이브러리들을 설치합니다.
+          sudo apt-get install -y chromium-browser libnss3 libgconf-2-4 libasound2 libatk1.0-0 libgtk-3-0
           
-      # 3. 필요한 라이브러리 설치 (selenium, webdriver-manager 포함)
+      # 3. 필요한 라이브러리 설치
       - name: Install dependencies (including selenium, webdriver-manager)
         run: |
           python -m pip install --upgrade pip
