@@ -36,13 +36,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x' # 원하는 파이썬 버전 지정 (예: '3.10')
-      # ⭐ 새롭게 추가된 단계: Selenium을 위한 시스템 종속성 설치 ⭐
+
+      # 💡 수정된 워크플로우 YAML (jobs: run-script: steps 내부)
+
+      # ⭐ 수정된 단계: Selenium을 위한 시스템 종속성 설치 ⭐
       - name: Install system dependencies for Chromium/Selenium
         run: |
-          sudo apt-get update
-          # 필요한 라이브러리들을 설치합니다.
-          sudo apt-get install -y chromium-browser libnss3 libgconf-2-4 libasound2 libatk1.0-0 libgtk-3-0
+          # update는 이미 로그에서 성공적으로 완료되었습니다.
+          # sudo apt-get update
           
+          # 24.04 환경에 맞게 패키지 목록을 수정합니다.
+          # 1. libasound2 -> libasound2t64로 변경
+          # 2. libgconf-2-4 제거 (찾을 수 없는 패키지)
+          # 3. chromium-browser 대신 chromium 설치 시도
+          sudo apt-get install -y \
+            chromium \
+            libnss3 \
+            libasound2t64 \
+            libatk1.0-0 \
+            libgtk-3-0
+
       # 3. 필요한 라이브러리 설치
       - name: Install dependencies (including selenium, webdriver-manager)
         run: |
