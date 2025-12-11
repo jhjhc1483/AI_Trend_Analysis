@@ -36,11 +36,10 @@ for item in items:
     minute = d1[1]
     data.append([name,link,years,month,day,hour,minute])
 
-    df2 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
+df2 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
 df2['기사명'] = df2['기사명'].fillna('').str.replace(r'\\', '', regex=True)
 df2['기사명'] = df2['기사명'].str.replace('\'', '＇', regex=False)
 df2['기사명'] = df2['기사명'].str.replace('\"', '〃', regex=False)
-df2
 # #엑셀 저장
 # #index=False 는 앞에 번호 없애기
 # df2.to_excel('result.xlsx', index=False)
