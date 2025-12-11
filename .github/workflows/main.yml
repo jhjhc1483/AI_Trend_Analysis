@@ -56,7 +56,7 @@ jobs:
           python codes/pycode/NIA.py
           
       # 6. codes/pycode/etnews.py 실행
-      - name: Run another_script.py
+      - name: Run etnews.py
         run: |
           python codes/pycode/etnews.py
       
