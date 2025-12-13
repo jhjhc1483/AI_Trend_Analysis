@@ -111,9 +111,16 @@
     <div id="header-fixed">
         육군본부 인공지능 일일동향 분석
 
-        <button id="runActionBtn" style="padding: 10px 20px; cursor: pointer;">
+<button id="runActionBtn" style="
+    padding: 12px 24px; 
+    background-color: #2ea44f; 
+    color: white; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer;">
     기사 업데이트
-        </button>
+</button>
     </div>
 
     <div class="container">
@@ -225,42 +232,47 @@
     </div>
 
     <script>
-    // github Actions 원격 실행
-        document.getElementById('runActionBtn').addEventListener('click', function() {
-    // 사용자에게 한 번 더 확인
-    if (!confirm("기사를 불러오시겠습니까?")) return;
+document.getElementById('runActionBtn').addEventListener('click', async function() {
+    // 1. 사용자로부터 토큰 입력 받기
+    //const token = prompt("GitHub Fine-grained Token을 입력하세요.\n(입력하신 토큰은 서버에 저장되지 않고 즉시 일회성으로 사용됩니다.)");
+    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드 입력\n입력한 코드는 저장되지 않음.");
+    if (!token) {
+        lert("토큰이 입력되지 않았습니다.");
+        return;
+    }
 
     const OWNER = "jhjhc1483";
     const REPO = "AI_Trend_Analysis";
     const WORKFLOW_ID = "main.yml";
-    const ACCESS_TOKEN = "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"; 
-
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
 
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            "Authorization": `token ${ACCESS_TOKEN}`,
-            "Accept": "application/vnd.github.v3+json",
-        },
-        body: JSON.stringify({
-            ref: "main" // 혹은 실행을 원하는 브랜치 명
-        })
-    })
-    .then(response => {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Authorization": `token ${token}`,
+                "Accept": "application/vnd.github.v3+json",
+            },
+            body: JSON.stringify({ ref: "main" })
+        });
+
+        // 2. 결과 처리
         if (response.status === 204) {
-            alert("새로고침 완료!");
+            alert("✅ 실행 성공! GitHub Actions 탭에서 진행 상황을 확인하세요.");
+        } else if (response.status === 401) {
+            alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
+        } else if (response.status === 404) {
+            alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
         } else {
-            alert("❌ 실패: " + response.status);
-            console.error(response);
+            const errorData = await response.json();
+            alert(`❌ 실패: ${response.status}\n메시지: ${errorData.message}`);
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
-        alert("에러가 발생했습니다. 콘솔 창을 확인하세요.");
-    });
+        alert("네트워크 오류가 발생했습니다.");
+    }
 });
-//github 완료
+
         // -----------------------------------------------------
         // 1. 전역 변수 설정 및 데이터 로드 파일 정의
         // -----------------------------------------------------
