@@ -8,23 +8,23 @@
         /* 기본 스타일 */
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
 
-        /* 새로 추가: 고정 헤더 스타일 */
+        /* 고정 헤더 스타일 */
         #header-fixed {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: #471c87; /* 육군을 상징하는 진한 색상 : #2A5034*/
+            background-color: #471c87;
             color: white;
             text-align: center;
             padding: 15px 0;
             font-size: 1.8em;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000; /* 다른 요소 위에 표시 */
+            z-index: 1000;
         }
 
-        /* 컨테이너 스타일: 고정 헤더의 높이만큼 상단에 여백을 줍니다. */
+        /* 컨테이너 스타일 */
         .container { 
             display: flex; 
             max-width: 1400px; 
@@ -33,9 +33,8 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1); 
             border-radius: 8px; 
             overflow: hidden; 
-            /* 고정 헤더 높이(15px*2+padding)에 맞게 상단 마진을 조정합니다. */
-            margin-top: 80px; /* 대략적인 고정 헤더 높이 + 20px 마진 */
-            min-height: calc(100vh - 120px); /* 헤더, 푸터 고려하여 높이 조정 */
+            margin-top: 80px; 
+            min-height: calc(100vh - 120px); 
         }
         
         /* 사이드바 (메뉴) 스타일 */
@@ -47,7 +46,6 @@
             height: auto; 
             overflow-y: auto; 
             flex-shrink: 0;
-            /* 고정 헤더 때문에 스크롤이 sidebar 전체에 적용되도록 relative position 유지 */
         }
         .logo { text-align: center; padding-bottom: 20px; font-size: 1.5em; font-weight: bold; border-bottom: 1px solid #34495e; margin-bottom: 20px; }
         .menu-group { margin-bottom: 20px; padding: 0 20px; }
@@ -65,7 +63,7 @@
         .search-controls input, .sort-controls select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
         .sort-controls label { margin-right: 10px; font-weight: bold; color: #2c3e50; }
 
-        /* 기사 목록/간행물 목록 스타일 (통일) */
+        /* 기사 목록/간행물 목록 스타일 */
         .article-list { list-style: none; padding: 0; }
         .article-item { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: box-shadow 0.2s; position: relative; }
         .article-item:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -96,7 +94,7 @@
         .latest-item a:hover { text-decoration: underline; }
         .latest-item span { font-size: 0.9em; color: #7f8c8d; }
 
-        /* 새로 추가: 카피라이트 스타일 */
+        /* 카피라이트 스타일 */
         #footer-copyright {
             text-align: center;
             padding: 15px 0;
@@ -105,6 +103,35 @@
             background-color: #ecf0f1;
             margin-top: 20px;
         }
+
+        /* ------------------------------------------------ */
+        /* 카테고리 뱃지 스타일 */
+        /* ------------------------------------------------ */
+        .category-badge {
+            font-size: 0.75em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+            font-weight: normal;
+            display: inline-block;
+        }
+        /* 국방: 파란색 */
+        .cat-defense { background-color: #3498db; }
+        /* 육군: 초록색 */
+        .cat-army { background-color: #2ea44f; }
+        /* 민간: 빨간색 */
+        .cat-civil { background-color: #e74c3c; }
+        /* 기타: 노란색 (글자색 검정) */
+        .cat-etc { background-color: #f1c40f; color: #333; }
+        
+        /* [새로 추가] 간행물: 주황색 배경, 흰색 글자 */
+        .cat-pub { background-color: #ff9800; color: white; }
+        
+        /* 기본값 */
+        .cat-default { background-color: #758888; }
+
     </style>
 </head>
 <body>
@@ -134,7 +161,10 @@
                 <div class="menu-group">
                     <div class="menu-title">기사 (NEWS)</div>
                     <a href="#" class="tab-button" data-source="ARTICLE_ALL">📰 전체보기</a>
-                    <a href="#" class="tab-button" data-source="ARTICLE_FAV">⭐️ 즐겨찾기</a>
+                    <div style="display: flex; align-items: center; padding-right: 10px;">
+                        <a href="#" class="tab-button" data-source="ARTICLE_FAV" style="flex-grow: 1;">⭐️ 즐겨찾기</a>
+                        <button onclick="clearFavorites('ARTICLE')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.75em; height: 24px;">초기화</button>
+                    </div>
                     <a href="#" class="tab-button" data-source="AITIMES">AI Times</a>
                     <a href="#" class="tab-button" data-source="ETNEWS">전자신문</a>
                     <a href="#" class="tab-button" data-source="MND">국방뉴스</a>
@@ -142,7 +172,10 @@
                 <div class="menu-group">
                     <div class="menu-title">간행물 (PUBLICATION)</div>
                     <a href="#" class="tab-button" data-source="PUBLICATION_ALL">📚 전체보기</a>
-                    <a href="#" class="tab-button" data-source="PUBLICATION_FAV">⭐️ 즐겨찾기</a>
+                    <div style="display: flex; align-items: center; padding-right: 10px;">
+                        <a href="#" class="tab-button" data-source="PUBLICATION_FAV" style="flex-grow: 1;">⭐️ 즐겨찾기</a>
+                        <button onclick="clearFavorites('PUBLICATION')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.75em; height: 24px;">초기화</button>
+                    </div>
                     <a href="#" class="tab-button" data-source="NIA">NIA</a>
                     <a href="#" class="tab-button" data-source="IITP">IITP</a>
                     <a href="#" class="tab-button" data-source="STEPI">STEPI</a>
@@ -233,8 +266,6 @@
 
     <script>
     document.getElementById('runActionBtn').addEventListener('click', async function() {
-    // 1. 사용자로부터 토큰 입력 받기
-    //const token = prompt("GitHub Fine-grained Token을 입력하세요.\n(입력하신 토큰은 서버에 저장되지 않고 즉시 일회성으로 사용됩니다.)");
     const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
     if (!token) {
         alert("토큰이 입력되지 않았습니다.");
@@ -253,7 +284,6 @@
             },
             body: JSON.stringify({ ref: "main" })
         });
-        // 2. 결과 처리
         if (response.status === 204) {
             alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
         } else if (response.status === 401) {
@@ -275,13 +305,14 @@
         // -----------------------------------------------------
         let articleData = []; // 기사 데이터 (AI Times, ETNEWS, MND)
         let publicationData = []; // 간행물 데이터 (NIA, IITP)
-        let allDataLoaded = false;
+        let allDataLoaded;
         let debounceTimeout;
-        let currentView = 'HOME'; // 현재 활성화된 뷰 (HOME, ARTICLE_ALL, AITIMES, PUBLICATION_ALL 등)
+        let currentView = 'HOME'; // 현재 활성화된 뷰
 
-        // 즐겨찾기 상태를 저장하는 Set (key: link)
-        let favoriteArticles = new Set();
-        let favoritePublications = new Set();
+        // 즐겨찾기 상태 저장 변수 (둘 다 Map으로 관리)
+        let favoriteArticles = new Map(); // Link -> Category
+        // [변경] 간행물도 Map으로 변경하여 '간행물' 카테고리 저장
+        let favoritePublications = new Map(); // Link -> Category ('간행물')
         
         const FILES_TO_LOAD = [
             { url: 'codes/aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
@@ -298,10 +329,30 @@
         // -----------------------------------------------------
         function loadData() {
             // 로컬 스토리지에서 즐겨찾기 로드
-            const favArticles = localStorage.getItem('favoriteArticles');
-            const favPublications = localStorage.getItem('favoritePublications');
-            if (favArticles) favoriteArticles = new Set(JSON.parse(favArticles));
-            if (favPublications) favoritePublications = new Set(JSON.parse(favPublications));
+            const favArticlesStr = localStorage.getItem('favoriteArticles');
+            const favPublicationsStr = localStorage.getItem('favoritePublications');
+            
+            // 기사 즐겨찾기 로드
+            if (favArticlesStr) {
+                const parsed = JSON.parse(favArticlesStr);
+                if (Array.isArray(parsed) && parsed.length > 0 && Array.isArray(parsed[0])) {
+                    favoriteArticles = new Map(parsed);
+                } else if (Array.isArray(parsed)) {
+                    favoriteArticles = new Map(parsed.map(link => [link, '기타']));
+                }
+            }
+
+            // [변경] 간행물 즐겨찾기 로드 (Set -> Map 호환성 처리)
+            if (favPublicationsStr) {
+                const parsed = JSON.parse(favPublicationsStr);
+                if (Array.isArray(parsed) && parsed.length > 0 && Array.isArray(parsed[0])) {
+                    // 신규 방식 (Map 저장본)
+                    favoritePublications = new Map(parsed);
+                } else if (Array.isArray(parsed)) {
+                    // 구 방식 (배열) -> 모두 '간행물' 카테고리로 변환
+                    favoritePublications = new Map(parsed.map(link => [link, '간행물']));
+                }
+            }
 
             const promises = FILES_TO_LOAD.map(file => {
                 return fetch(file.url)
@@ -312,13 +363,11 @@
                         return response.json();
                     })
                     .then(data => {
-                        // 각 데이터 항목에 site, isArticle, link 필드 추가
                         return data.map(item => ({
                             ...item,
                             site: file.site,
                             isArticle: file.isArticle,
                             displayName: file.displayName,
-                            // 기사명/제목, 링크 통일
                             title: item.기사명 || item.제목 || '제목 없음',
                             link: item.링크 || item.link || '#',
                             category: item.분류 || item.category || '',
@@ -326,7 +375,7 @@
                     })
                     .catch(error => {
                         console.error(`Error loading ${file.url}:`, error);
-                        return []; // 오류 발생 시 빈 배열 반환
+                        return [];
                     });
             });
 
@@ -345,7 +394,6 @@
                     allDataLoaded = true;
                     console.log(`총 ${articleData.length}개의 기사 데이터와 ${publicationData.length}개의 간행물 데이터 로드 완료.`);
                     
-                    // 초기 탭 렌더링 (HOME)
                     showTab('HOME');
                 })
                 .catch(error => {
@@ -358,11 +406,9 @@
         // 3. 정렬 함수
         // -----------------------------------------------------
         function sortData(data, sortBy) {
-            // 데이터 복사본을 정렬
             const sortedData = [...data];
 
             sortedData.sort((a, b) => {
-                // 년월일시분 데이터를 합쳐 비교합니다. (예: 202512101030)
                 const getDateString = (item) => `${item.년 || '0000'}${item.월 || '00'}${item.일 || '00'}${item.시 || '00'}${item.분 || '00'}`;
                 const dateA = getDateString(a);
                 const dateB = getDateString(b);
@@ -374,20 +420,16 @@
                 const categoryB = b.category;
 
                 switch (sortBy) {
-                    case 'date_asc':
-                        return dateA.localeCompare(dateB);
-                    case 'date_desc':
-                        return dateB.localeCompare(dateA);
-                    case 'title_asc':
-                        return titleA.localeCompare(titleB);
-                    case 'site_asc':
+                    case 'date_asc': return dateA.localeCompare(dateB);
+                    case 'date_desc': return dateB.localeCompare(dateA);
+                    case 'title_asc': return titleA.localeCompare(titleB);
+                    case 'site_asc': 
                         if (siteA !== siteB) return siteA.localeCompare(siteB);
-                        return dateB.localeCompare(dateA); // 사이트 같으면 최신순
+                        return dateB.localeCompare(dateA);
                     case 'category_asc': 
                         if (categoryA !== categoryB) return categoryA.localeCompare(categoryB);
-                        return dateB.localeCompare(dateA); // 카테고리 같으면 최신순
-                    default:
-                        return 0;
+                        return dateB.localeCompare(dateA);
+                    default: return 0;
                 }
             });
             return sortedData;
@@ -400,7 +442,6 @@
         function showTab(sourceName) {
             currentView = sourceName;
             
-            // 탭 버튼의 활성 상태 업데이트
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -409,7 +450,6 @@
                 activeTab.classList.add('active');
             }
 
-            // 뷰 전환
             const isHome = sourceName === 'HOME';
             const isArticleView = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'MND'].includes(sourceName);
             const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA'].includes(sourceName);
@@ -420,10 +460,8 @@
             document.getElementById('article-controls').style.display = isArticleView ? 'flex' : 'none';
             document.getElementById('publication-controls').style.display = isPublicationView ? 'flex' : 'none';
             
-            // 제목 업데이트
             document.getElementById('main-content-title').textContent = activeTab ? activeTab.textContent.replace(/^(🏠|📰|⭐️|📚) /, '') : 'AI 동향 분석';
 
-            // 렌더링 함수 호출
             if (isHome) {
                 renderDashboard();
             } else {
@@ -445,7 +483,7 @@
             document.getElementById('stat-fav-articles').textContent = favoriteArticles.size;
             document.getElementById('stat-fav-publications').textContent = favoritePublications.size;
 
-            // 최신 기사 5개 (전체 기사에서 최신순 정렬 후 5개)
+            // 최신 기사 5개
             const sortedArticles = sortData(articleData, 'date_desc');
             const latestArticles = sortedArticles.slice(0, 5);
             document.getElementById('latest-articles').innerHTML = latestArticles.map(item => `
@@ -483,13 +521,10 @@
                 dataLabel = '기사';
                 
                 if (isFav) {
-                    // 즐겨찾기 기사 필터링
                     data = articleData.filter(a => favoriteArticles.has(a.link));
                 } else if (isAll) {
-                    // 전체 기사
                     data = articleData;
                 } else {
-                    // 개별 기사 소스
                     data = articleData.filter(a => a.site === sourceName);
                 }
             } else { // Publication
@@ -498,29 +533,19 @@
                 dataLabel = '간행물';
 
                 if (isFav) {
-                    // 즐겨찾기 간행물 필터링
                     data = publicationData.filter(p => favoritePublications.has(p.link));
                 } else if (isAll) {
-                    // 전체 간행물
                     data = publicationData;
                 } else {
-                    // 개별 간행물 소스
                     data = publicationData.filter(p => p.site === sourceName);
                 }
             }
 
-            // 검색 필터링
             if (searchTerm) {
-                data = data.filter(item => 
-                    item.title.toLowerCase().includes(searchTerm) || 
-                    item.category.toLowerCase().includes(searchTerm) ||
-                    item.site.toLowerCase().includes(searchTerm)
-                );
+                data = data.filter(item => item.title.toLowerCase().includes(searchTerm));
             }
 
-            // 정렬
             const filteredAndSortedData = sortData(data, sortBy);
-
             const listContainer = document.getElementById('data-list-container');
             const noDataMsg = document.getElementById('no-data');
 
@@ -537,16 +562,40 @@
         }
         
         function createListItem(item) {
-            // 날짜 형식
             const timeInfo = (item.시 && item.분) 
                 ? `${item.시.padStart(2, '0')}:${item.분.padStart(2, '0')}` 
                 : '';
             const fullDate = `${item.년}.${item.월}.${item.일} ${timeInfo}`;
 
-            // 즐겨찾기 상태 확인
-            const isFavorite = item.isArticle 
-                ? favoriteArticles.has(item.link) 
-                : favoritePublications.has(item.link);
+            // 즐겨찾기 여부 확인
+            let isFavorite = false;
+            let categoryBadge = '';
+            
+            // 기사와 간행물 모두 Map에서 확인
+            if (item.isArticle) {
+                isFavorite = favoriteArticles.has(item.link);
+            } else {
+                isFavorite = favoritePublications.has(item.link);
+            }
+
+            // 즐겨찾기 상태라면 카테고리 뱃지 생성
+            if (isFavorite) {
+                const savedCat = item.isArticle 
+                    ? favoriteArticles.get(item.link) 
+                    : favoritePublications.get(item.link); // 간행물은 '간행물' 반환
+                
+                let colorClass = 'cat-etc'; 
+
+                if (savedCat === '국방') colorClass = 'cat-defense';
+                else if (savedCat === '육군') colorClass = 'cat-army';
+                else if (savedCat === '민간') colorClass = 'cat-civil';
+                else if (savedCat === '간행물') colorClass = 'cat-pub'; // [추가] 간행물 클래스 적용
+                else if (savedCat === '기타') colorClass = 'cat-etc';
+                else colorClass = 'cat-default'; 
+
+                categoryBadge = `<span class="category-badge ${colorClass}">${savedCat}</span>`;
+            }
+
             const favIcon = isFavorite ? '★' : '☆';
             const favClass = isFavorite ? 'is-favorite' : '';
             
@@ -557,6 +606,7 @@
                         <a href="#" class="article-title" onclick="openPopup('${item.link}', '${item.title}'); return false;">
                             ${item.title}
                         </a>
+                        ${categoryBadge}
                         <div class="article-meta">
                             <span>출처: ${item.displayName}</span>
                             <span>분류: ${item.category || '-'}</span>
@@ -571,9 +621,7 @@
         // 7. 즐겨찾기 토글 함수
         // -----------------------------------------------------
         function toggleFavorite(event, link, isArticle) {
-            event.stopPropagation(); // 목록 클릭 이벤트 방지
-            
-            const btn = event.currentTarget;
+            event.stopPropagation();
             let isFav;
 
             if (isArticle) {
@@ -581,38 +629,48 @@
                 if (isFav) {
                     favoriteArticles.delete(link);
                 } else {
-                    favoriteArticles.add(link);
+                    let categoryInput = prompt("카테고리를 입력하세요 (국방, 육군, 민간, 기타)", "기타");
+                    if (categoryInput === null) return;
+                    categoryInput = categoryInput.trim();
+                    if (categoryInput === "") categoryInput = "기타";
+                    favoriteArticles.set(link, categoryInput);
                 }
-                localStorage.setItem('favoriteArticles', JSON.stringify(Array.from(favoriteArticles)));
+                localStorage.setItem('favoriteArticles', JSON.stringify(Array.from(favoriteArticles.entries())));
             } else {
+                // [변경] 간행물 처리: Prompt 없이 '간행물'로 자동 저장
                 isFav = favoritePublications.has(link);
                 if (isFav) {
                     favoritePublications.delete(link);
                 } else {
-                    favoritePublications.add(link);
+                    // 사용자 입력 없이 '간행물' 카테고리 지정
+                    favoritePublications.set(link, '간행물');
                 }
-                localStorage.setItem('favoritePublications', JSON.stringify(Array.from(favoritePublications)));
+                localStorage.setItem('favoritePublications', JSON.stringify(Array.from(favoritePublications.entries())));
             }
 
             // UI 업데이트
-            btn.classList.toggle('is-favorite');
-            btn.textContent = isFav ? '☆' : '★';
+            renderCurrentView();
 
-            // 현재 뷰가 즐겨찾기인 경우, 즉시 목록을 갱신하여 제거/추가 반영
-            if (currentView.includes('_FAV') || currentView === 'HOME') {
-                 renderCurrentView();
-            }
-            // 대시보드 통계 업데이트
             if (currentView === 'HOME') {
                 document.getElementById(isArticle ? 'stat-fav-articles' : 'stat-fav-publications').textContent = isArticle ? favoriteArticles.size : favoritePublications.size;
             }
         }
-        
+
+        function clearFavorites(type) {
+            if (!confirm(`${type === 'ARTICLE' ? '기사' : '간행물'} 즐겨찾기를 모두 삭제하시겠습니까?`)) return;
+            if (type === 'ARTICLE') {
+                favoriteArticles.clear();
+                localStorage.setItem('favoriteArticles', JSON.stringify([]));
+            } else {
+                favoritePublications.clear();
+                localStorage.setItem('favoritePublications', JSON.stringify([]));
+            }
+            renderCurrentView();
+        }   
+
         // -----------------------------------------------------
         // 8. 유틸리티 함수
         // -----------------------------------------------------
-
-        // 팝업 함수 (X-Frame-Options 오류 방지를 위해 새 탭으로 띄우도록 수정)
         function openPopup(link, title) {
              if (link && link !== '#') {
                  window.open(link, '_blank');
@@ -621,7 +679,6 @@
             }
         }
 
-        // 검색 디바운스 함수
         function debounce(func, delay) {
             return function(...args) {
                 clearTimeout(debounceTimeout);
@@ -637,7 +694,6 @@
         // 9. 이벤트 리스너 및 초기화
         // -----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
-            // 탭 버튼 클릭 이벤트 설정
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -645,11 +701,9 @@
                 });
             });
 
-            // 초기 데이터 로드 시작
             loadData();
         });
 
     </script>
 </body>
 </html>
-
