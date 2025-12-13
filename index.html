@@ -110,27 +110,27 @@
 <body>
     <div id="header-fixed">
         육군본부 인공지능 일일동향 분석
-
-<button id="runActionBtn" style="
-    padding: 12px 24px; 
-    background-color: #2ea44f; 
-    color: white; 
-    border: none; 
-    border-radius: 6px; 
-    font-weight: bold; 
-    cursor: pointer;">
-    기사 업데이트
-</button>
     </div>
-
     <div class="container">
         <div class="sidebar">
-            <div class="logo">AI 동향분석</div>
+
+            <div class="logo">AI 동향분석
+            <button id="runActionBtn" style="
+                padding: 2px 7px;
+                background-color: #2ea44f; 
+                color: white; 
+                border: none; 
+                border-radius: 6px; 
+                font-weight: bold; 
+                cursor: pointer;">
+                업데이트
+            </button>
+            </div>
             <nav id="main-nav">
                 <div class="menu-group">
                     <a href="#" class="tab-button active" data-source="HOME">🏠 대시보드</a>
-                </div>
 
+                </div>
                 <div class="menu-group">
                     <div class="menu-title">기사 (NEWS)</div>
                     <a href="#" class="tab-button" data-source="ARTICLE_ALL">📰 전체보기</a>
@@ -232,10 +232,10 @@
     </div>
 
     <script>
-document.getElementById('runActionBtn').addEventListener('click', async function() {
+    document.getElementById('runActionBtn').addEventListener('click', async function() {
     // 1. 사용자로부터 토큰 입력 받기
     //const token = prompt("GitHub Fine-grained Token을 입력하세요.\n(입력하신 토큰은 서버에 저장되지 않고 즉시 일회성으로 사용됩니다.)");
-    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드 입력\n입력한 코드는 저장되지 않음.");
+    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
     if (!token) {
         lert("토큰이 입력되지 않았습니다.");
         return;
@@ -258,7 +258,7 @@ document.getElementById('runActionBtn').addEventListener('click', async function
 
         // 2. 결과 처리
         if (response.status === 204) {
-            alert("✅ 실행 성공! GitHub Actions 탭에서 진행 상황을 확인하세요.");
+            alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
         } else if (response.status === 401) {
             alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
         } else if (response.status === 404) {
