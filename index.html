@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인공지능 동향 분석 사이트 | AI Trend Analyzer</title>
+    <style>
+        /* 기본 스타일 */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
+
+        /* 새로 추가: 고정 헤더 스타일 */
+        #header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #471c87; /* 육군을 상징하는 진한 색상 : #2A5034*/
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000; /* 다른 요소 위에 표시 */
+        }
+
+        /* 컨테이너 스타일: 고정 헤더의 높이만큼 상단에 여백을 줍니다. */
+        .container { 
+            display: flex; 
+            max-width: 1400px; 
+            margin: 20px auto; 
+            background-color: #fff; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            /* 고정 헤더 높이(15px*2+padding)에 맞게 상단 마진을 조정합니다. */
+            margin-top: 80px; /* 대략적인 고정 헤더 높이 + 20px 마진 */
+            min-height: calc(100vh - 120px); /* 헤더, 푸터 고려하여 높이 조정 */
+        }
+        
+        /* 사이드바 (메뉴) 스타일 */
+        .sidebar { 
+            width: 250px; 
+            background-color: #2c3e50; 
+            color: white; 
+            padding: 20px 0; 
+            height: auto; 
+            overflow-y: auto; 
+            flex-shrink: 0;
+            /* 고정 헤더 때문에 스크롤이 sidebar 전체에 적용되도록 relative position 유지 */
+        }
+        .logo { text-align: center; padding-bottom: 20px; font-size: 1.5em; font-weight: bold; border-bottom: 1px solid #34495e; margin-bottom: 20px; }
+        .menu-group { margin-bottom: 20px; padding: 0 20px; }
+        .menu-title { font-size: 1.1em; font-weight: bold; color: #ecf0f1; margin-bottom: 10px; border-bottom: 1px solid #4a637a; padding-bottom: 5px; }
+        .tab-button { display: block; padding: 10px 0; color: #bdc3c7; text-decoration: none; transition: background-color 0.3s, color 0.3s; border-radius: 4px; padding-left: 10px; }
+        .tab-button:hover { background-color: #34495e; color: #fff; }
+        .tab-button.active { background-color: #3498db; color: #fff; font-weight: bold; }
+
+        /* 메인 콘텐츠 스타일 */
+        .content { flex-grow: 1; padding: 30px; }
+        h1 { color: #2c3e50; margin-top: 0; }
+        
+        /* 컨트롤 영역 (검색, 정렬) */
+        .controls-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background-color: #ecf0f1; border-radius: 6px; }
+        .search-controls input, .sort-controls select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        .sort-controls label { margin-right: 10px; font-weight: bold; color: #2c3e50; }
+
+        /* 기사 목록/간행물 목록 스타일 (통일) */
+        .article-list { list-style: none; padding: 0; }
+        .article-item { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: box-shadow 0.2s; position: relative; }
+        .article-item:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .article-title-group { flex-grow: 1; margin-right: 20px; }
+        .article-title { font-size: 1.1em; color: #3498db; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .article-meta { color: #7f8c8d; font-size: 0.9em; margin-top: 5px; }
+        .article-meta span { margin-right: 15px; }
+        .article-date { flex-shrink: 0; font-weight: bold; color: #2c3e50; font-size: 1em; }
+        
+        /* 즐겨찾기 버튼 */
+        .favorite-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; padding: 0 5px; color: #ccc; transition: color 0.2s; }
+        .favorite-btn.is-favorite { color: #f39c12; }
+        .favorite-btn:hover { color: #e67e22; }
+
+        /* 데이터 없음 메시지 */
+        #no-data { text-align: center; color: #e74c3c; padding: 40px; border: 1px dashed #e74c3c; border-radius: 6px; margin-top: 20px; display: none; }
+        
+        /* 대시보드 스타일 */
+        #dashboard-view { padding: 20px; background-color: #ecf0f1; border-radius: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background-color: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .stat-card h3 { color: #34495e; margin-top: 0; font-size: 1.1em; }
+        .stat-card p { font-size: 2.5em; font-weight: bold; color: #3498db; margin: 5px 0 0 0; }
+        .trend-section h2 { border-bottom: 2px solid #bdc3c7; padding-bottom: 10px; color: #2c3e50; }
+        .latest-list { list-style: none; padding: 0; }
+        .latest-item { background-color: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .latest-item a { color: #2c3e50; text-decoration: none; font-weight: bold; }
+        .latest-item a:hover { text-decoration: underline; }
+        .latest-item span { font-size: 0.9em; color: #7f8c8d; }
+
+        /* 새로 추가: 카피라이트 스타일 */
+        #footer-copyright {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            background-color: #ecf0f1;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-fixed">
+        육군본부 인공지능 일일동향 분석
+    </div>
+    <div class="container">
+        <div class="sidebar">
+
+            <div class="logo">AI 동향분석
+            <button id="runActionBtn" style="
+                padding: 2px 7px;
+                background-color: #2ea44f; 
+                color: white; 
+                border: none; 
+                border-radius: 6px; 
+                font-weight: bold; 
+                cursor: pointer;">
+                업데이트
+            </button>
+            </div>
+            <nav id="main-nav">
+                <div class="menu-group">
+                    <a href="#" class="tab-button active" data-source="HOME">🏠 대시보드</a>
+
+                </div>
+                <div class="menu-group">
+                    <div class="menu-title">기사 (NEWS)</div>
+                    <a href="#" class="tab-button" data-source="ARTICLE_ALL">📰 전체보기</a>
+                    <a href="#" class="tab-button" data-source="ARTICLE_FAV">⭐️ 즐겨찾기</a>
+                    <a href="#" class="tab-button" data-source="AITIMES">AI Times</a>
+                    <a href="#" class="tab-button" data-source="ETNEWS">전자신문</a>
+                    <a href="#" class="tab-button" data-source="MND">국방뉴스</a>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-title">간행물 (PUBLICATION)</div>
+                    <a href="#" class="tab-button" data-source="PUBLICATION_ALL">📚 전체보기</a>
+                    <a href="#" class="tab-button" data-source="PUBLICATION_FAV">⭐️ 즐겨찾기</a>
+                    <a href="#" class="tab-button" data-source="NIA">NIA</a>
+                    <a href="#" class="tab-button" data-source="IITP">IITP</a>
+                    <a href="#" class="tab-button" data-source="STEPI">STEPI</a>
+                    <a href="#" class="tab-button" data-source="NIPA">NIPA</a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="content">
+            <h1 id="main-content-title">홈 (대시보드)</h1>
+
+            <div id="dashboard-view">
+                <h2>📊 요약 정보</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>총 기사 수</h3>
+                        <p id="stat-articles">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>총 간행물 수</h3>
+                        <p id="stat-publications">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>즐겨찾는 기사 수</h3>
+                        <p id="stat-fav-articles">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>즐겨찾는 간행물 수</h3>
+                        <p id="stat-fav-publications">0</p>
+                    </div>
+                </div>
+
+                <div class="trend-section">
+                    <h2>✨ 최신 기사 5개</h2>
+                    <ul class="latest-list" id="latest-articles">
+                        </ul>
+                </div>
+
+                <div class="trend-section">
+                    <h2>✨ 최신 간행물 5개</h2>
+                    <ul class="latest-list" id="latest-publications">
+                        </ul>
+                </div>
+            </div>
+
+            <div class="controls-row" id="article-controls" style="display: none;">
+                <div class="search-controls">
+                    <input type="text" id="search-term-article" placeholder="기사 검색 (제목, 사이트)" onkeyup="debounceSearchArticles()">
+                </div>
+                <div class="sort-controls">
+                    <label for="sort-by-article">정렬 기준:</label>
+                    <select id="sort-by-article" onchange="renderCurrentView()">
+                        <option value="date_desc">날짜 내림차순 (최신순)</option>
+                        <option value="date_asc">날짜 오름차순 (오래된순)</option>
+                        <option value="title_asc">제목 오름차순</option>
+                        <option value="site_asc">사이트 오름차순</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="controls-row" id="publication-controls" style="display: none;">
+                <div class="search-controls">
+                    <input type="text" id="search-term-publication" placeholder="간행물 검색 (제목, 분류)" onkeyup="debounceSearchPublications()">
+                </div>
+                <div class="sort-controls">
+                    <label for="sort-by-publication">정렬 기준:</label>
+                    <select id="sort-by-publication" onchange="renderCurrentView()">
+                        <option value="date_desc">날짜 내림차순 (최신순)</option>
+                        <option value="date_asc">날짜 오름차순 (오래된순)</option>
+                        <option value="title_asc">제목 오름차순</option>
+                        <option value="category_asc">분류 오름차순</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="list-view" style="display: none;">
+                <ul class="article-list" id="data-list-container">
+                    </ul>
+                <div id="no-data">데이터 로드 중...</div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div id="footer-copyright">
+        &copy; maj.cjh. All rights reserved.
+    </div>
+
+    <script>
+    document.getElementById('runActionBtn').addEventListener('click', async function() {
+    // 1. 사용자로부터 토큰 입력 받기
+    //const token = prompt("GitHub Fine-grained Token을 입력하세요.\n(입력하신 토큰은 서버에 저장되지 않고 즉시 일회성으로 사용됩니다.)");
+    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
+    if (!token) {
+        alert("토큰이 입력되지 않았습니다.");
+        return;
+    }
+    const OWNER = "jhjhc1483";
+    const REPO = "AI_Trend_Analysis";
+    const WORKFLOW_ID = "main.yml";
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Authorization": `token ${token}`,
+                "Accept": "application/vnd.github.v3+json",
+            },
+            body: JSON.stringify({ ref: "main" })
+        });
+        // 2. 결과 처리
+        if (response.status === 204) {
+            alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
+        } else if (response.status === 401) {
+            alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
+        } else if (response.status === 404) {
+            alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
+        } else {
+            const errorData = await response.json();
+            alert(`❌ 실패: ${response.status}\n메시지: ${errorData.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert("네트워크 오류가 발생했습니다.");
+    }
+});
+
+        // -----------------------------------------------------
+        // 1. 전역 변수 설정 및 데이터 로드 파일 정의
+        // -----------------------------------------------------
+        let articleData = []; // 기사 데이터 (AI Times, ETNEWS, MND)
+        let publicationData = []; // 간행물 데이터 (NIA, IITP)
+        let allDataLoaded = false;
+        let debounceTimeout;
+        let currentView = 'HOME'; // 현재 활성화된 뷰 (HOME, ARTICLE_ALL, AITIMES, PUBLICATION_ALL 등)
+
+        // 즐겨찾기 상태를 저장하는 Set (key: link)
+        let favoriteArticles = new Set();
+        let favoritePublications = new Set();
+        
+        const FILES_TO_LOAD = [
+            { url: 'codes/aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
+            { url: 'codes/etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
+            { url: 'codes/mnd.json', site: 'MND', isArticle: true, displayName: '국방뉴스' },
+            { url: 'codes/iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
+            { url: 'codes/nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
+            { url: 'codes/STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
+            { url: 'codes/NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' }
+        ];
+
+        // -----------------------------------------------------
+        // 2. 데이터 로딩 함수
+        // -----------------------------------------------------
+        function loadData() {
+            // 로컬 스토리지에서 즐겨찾기 로드
+            const favArticles = localStorage.getItem('favoriteArticles');
+            const favPublications = localStorage.getItem('favoritePublications');
+            if (favArticles) favoriteArticles = new Set(JSON.parse(favArticles));
+            if (favPublications) favoritePublications = new Set(JSON.parse(favPublications));
+
+            const promises = FILES_TO_LOAD.map(file => {
+                return fetch(file.url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to load ${file.url}: ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 각 데이터 항목에 site, isArticle, link 필드 추가
+                        return data.map(item => ({
+                            ...item,
+                            site: file.site,
+                            isArticle: file.isArticle,
+                            displayName: file.displayName,
+                            // 기사명/제목, 링크 통일
+                            title: item.기사명 || item.제목 || '제목 없음',
+                            link: item.링크 || item.link || '#',
+                            category: item.분류 || item.category || '',
+                        }));
+                    })
+                    .catch(error => {
+                        console.error(`Error loading ${file.url}:`, error);
+                        return []; // 오류 발생 시 빈 배열 반환
+                    });
+            });
+
+            Promise.all(promises)
+                .then(results => {
+                    results.forEach(siteData => {
+                        if (siteData.length > 0) {
+                            if (siteData[0].isArticle) {
+                                articleData = articleData.concat(siteData);
+                            } else {
+                                publicationData = publicationData.concat(siteData);
+                            }
+                        }
+                    });
+
+                    allDataLoaded = true;
+                    console.log(`총 ${articleData.length}개의 기사 데이터와 ${publicationData.length}개의 간행물 데이터 로드 완료.`);
+                    
+                    // 초기 탭 렌더링 (HOME)
+                    showTab('HOME');
+                })
+                .catch(error => {
+                    console.error("Critical error in Promise.all:", error);
+                    document.getElementById('no-data').textContent = "데이터 로드 중 치명적인 오류 발생.";
+                });
+        }
+
+        // -----------------------------------------------------
+        // 3. 정렬 함수
+        // -----------------------------------------------------
+        function sortData(data, sortBy) {
+            // 데이터 복사본을 정렬
+            const sortedData = [...data];
+
+            sortedData.sort((a, b) => {
+                // 년월일시분 데이터를 합쳐 비교합니다. (예: 202512101030)
+                const getDateString = (item) => `${item.년 || '0000'}${item.월 || '00'}${item.일 || '00'}${item.시 || '00'}${item.분 || '00'}`;
+                const dateA = getDateString(a);
+                const dateB = getDateString(b);
+                const titleA = a.title;
+                const titleB = b.title;
+                const siteA = a.site;
+                const siteB = b.site;
+                const categoryA = a.category;
+                const categoryB = b.category;
+
+                switch (sortBy) {
+                    case 'date_asc':
+                        return dateA.localeCompare(dateB);
+                    case 'date_desc':
+                        return dateB.localeCompare(dateA);
+                    case 'title_asc':
+                        return titleA.localeCompare(titleB);
+                    case 'site_asc':
+                        if (siteA !== siteB) return siteA.localeCompare(siteB);
+                        return dateB.localeCompare(dateA); // 사이트 같으면 최신순
+                    case 'category_asc': 
+                        if (categoryA !== categoryB) return categoryA.localeCompare(categoryB);
+                        return dateB.localeCompare(dateA); // 카테고리 같으면 최신순
+                    default:
+                        return 0;
+                }
+            });
+            return sortedData;
+        }
+
+
+        // -----------------------------------------------------
+        // 4. 탭 전환 및 렌더링 함수
+        // -----------------------------------------------------
+        function showTab(sourceName) {
+            currentView = sourceName;
+            
+            // 탭 버튼의 활성 상태 업데이트
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeTab = document.querySelector(`.tab-button[data-source="${sourceName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+
+            // 뷰 전환
+            const isHome = sourceName === 'HOME';
+            const isArticleView = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'MND'].includes(sourceName);
+            const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA'].includes(sourceName);
+
+            document.getElementById('dashboard-view').style.display = isHome ? 'block' : 'none';
+            document.getElementById('list-view').style.display = isHome ? 'none' : 'block';
+
+            document.getElementById('article-controls').style.display = isArticleView ? 'flex' : 'none';
+            document.getElementById('publication-controls').style.display = isPublicationView ? 'flex' : 'none';
+            
+            // 제목 업데이트
+            document.getElementById('main-content-title').textContent = activeTab ? activeTab.textContent.replace(/^(🏠|📰|⭐️|📚) /, '') : 'AI 동향 분석';
+
+            // 렌더링 함수 호출
+            if (isHome) {
+                renderDashboard();
+            } else {
+                renderList(sourceName);
+            }
+        }
+        
+        function renderCurrentView() {
+            showTab(currentView);
+        }
+
+        // -----------------------------------------------------
+        // 5. 대시보드 렌더링 함수
+        // -----------------------------------------------------
+        function renderDashboard() {
+            // 통계 업데이트
+            document.getElementById('stat-articles').textContent = articleData.length;
+            document.getElementById('stat-publications').textContent = publicationData.length;
+            document.getElementById('stat-fav-articles').textContent = favoriteArticles.size;
+            document.getElementById('stat-fav-publications').textContent = favoritePublications.size;
+
+            // 최신 기사 5개 (전체 기사에서 최신순 정렬 후 5개)
+            const sortedArticles = sortData(articleData, 'date_desc');
+            const latestArticles = sortedArticles.slice(0, 5);
+            document.getElementById('latest-articles').innerHTML = latestArticles.map(item => `
+                <li class="latest-item">
+                    <a href="#" onclick="openPopup('${item.link}', '${item.title}'); return false;">${item.title}</a>
+                    <span>${item.displayName} | ${item.년}.${item.월}.${item.일}</span>
+                </li>
+            `).join('');
+
+            // 최신 간행물 5개
+            const sortedPublications = sortData(publicationData, 'date_desc');
+            const latestPublications = sortedPublications.slice(0, 5);
+            document.getElementById('latest-publications').innerHTML = latestPublications.map(item => `
+                <li class="latest-item">
+                    <a href="#" onclick="openPopup('${item.link}', '${item.title}'); return false;">${item.title}</a>
+                    <span>${item.displayName} | ${item.년}.${item.월}.${item.일}</span>
+                </li>
+            `).join('');
+        }
+
+        // -----------------------------------------------------
+        // 6. 목록 렌더링 함수 (기사 및 간행물 공통)
+        // -----------------------------------------------------
+        function renderList(sourceName) {
+            let data = [];
+            let sortBy, searchTerm, dataLabel;
+
+            const isArticle = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'MND'].includes(sourceName);
+            const isAll = sourceName.includes('_ALL');
+            const isFav = sourceName.includes('_FAV');
+            
+            if (isArticle) {
+                sortBy = document.getElementById('sort-by-article').value;
+                searchTerm = document.getElementById('search-term-article').value.toLowerCase();
+                dataLabel = '기사';
+                
+                if (isFav) {
+                    // 즐겨찾기 기사 필터링
+                    data = articleData.filter(a => favoriteArticles.has(a.link));
+                } else if (isAll) {
+                    // 전체 기사
+                    data = articleData;
+                } else {
+                    // 개별 기사 소스
+                    data = articleData.filter(a => a.site === sourceName);
+                }
+            } else { // Publication
+                sortBy = document.getElementById('sort-by-publication').value;
+                searchTerm = document.getElementById('search-term-publication').value.toLowerCase();
+                dataLabel = '간행물';
+
+                if (isFav) {
+                    // 즐겨찾기 간행물 필터링
+                    data = publicationData.filter(p => favoritePublications.has(p.link));
+                } else if (isAll) {
+                    // 전체 간행물
+                    data = publicationData;
+                } else {
+                    // 개별 간행물 소스
+                    data = publicationData.filter(p => p.site === sourceName);
+                }
+            }
+
+            // 검색 필터링
+            if (searchTerm) {
+                data = data.filter(item => 
+                    item.title.toLowerCase().includes(searchTerm) || 
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    item.site.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 정렬
+            const filteredAndSortedData = sortData(data, sortBy);
+
+            const listContainer = document.getElementById('data-list-container');
+            const noDataMsg = document.getElementById('no-data');
+
+            if (filteredAndSortedData.length === 0) {
+                listContainer.innerHTML = '';
+                noDataMsg.style.display = 'block';
+                noDataMsg.textContent = searchTerm 
+                    ? `검색어 "${searchTerm}"에 해당하는 ${dataLabel}가(이) 없습니다.` 
+                    : `${document.querySelector(`.tab-button[data-source="${sourceName}"]`).textContent.replace(/^(📰|⭐️|📚) /, '')} ${dataLabel} 데이터가 없습니다.`;
+            } else {
+                listContainer.innerHTML = filteredAndSortedData.map(item => createListItem(item)).join('');
+                noDataMsg.style.display = 'none';
+            }
+        }
+        
+        function createListItem(item) {
+            // 날짜 형식
+            const timeInfo = (item.시 && item.분) 
+                ? `${item.시.padStart(2, '0')}:${item.분.padStart(2, '0')}` 
+                : '';
+            const fullDate = `${item.년}.${item.월}.${item.일} ${timeInfo}`;
+
+            // 즐겨찾기 상태 확인
+            const isFavorite = item.isArticle 
+                ? favoriteArticles.has(item.link) 
+                : favoritePublications.has(item.link);
+            const favIcon = isFavorite ? '★' : '☆';
+            const favClass = isFavorite ? 'is-favorite' : '';
+            
+            return `
+                <li class="article-item">
+                    <button class="favorite-btn ${favClass}" onclick="toggleFavorite(event, '${item.link}', ${item.isArticle})">${favIcon}</button>
+                    <div class="article-title-group">
+                        <a href="#" class="article-title" onclick="openPopup('${item.link}', '${item.title}'); return false;">
+                            ${item.title}
+                        </a>
+                        <div class="article-meta">
+                            <span>출처: ${item.displayName}</span>
+                            <span>분류: ${item.category || '-'}</span>
+                        </div>
+                    </div>
+                    <div class="article-date">${fullDate}</div>
+                </li>
+            `;
+        }
+        
+        // -----------------------------------------------------
+        // 7. 즐겨찾기 토글 함수
+        // -----------------------------------------------------
+        function toggleFavorite(event, link, isArticle) {
+            event.stopPropagation(); // 목록 클릭 이벤트 방지
+            
+            const btn = event.currentTarget;
+            let isFav;
+
+            if (isArticle) {
+                isFav = favoriteArticles.has(link);
+                if (isFav) {
+                    favoriteArticles.delete(link);
+                } else {
+                    favoriteArticles.add(link);
+                }
+                localStorage.setItem('favoriteArticles', JSON.stringify(Array.from(favoriteArticles)));
+            } else {
+                isFav = favoritePublications.has(link);
+                if (isFav) {
+                    favoritePublications.delete(link);
+                } else {
+                    favoritePublications.add(link);
+                }
+                localStorage.setItem('favoritePublications', JSON.stringify(Array.from(favoritePublications)));
+            }
+
+            // UI 업데이트
+            btn.classList.toggle('is-favorite');
+            btn.textContent = isFav ? '☆' : '★';
+
+            // 현재 뷰가 즐겨찾기인 경우, 즉시 목록을 갱신하여 제거/추가 반영
+            if (currentView.includes('_FAV') || currentView === 'HOME') {
+                 renderCurrentView();
+            }
+            // 대시보드 통계 업데이트
+            if (currentView === 'HOME') {
+                document.getElementById(isArticle ? 'stat-fav-articles' : 'stat-fav-publications').textContent = isArticle ? favoriteArticles.size : favoritePublications.size;
+            }
+        }
+        
+        // -----------------------------------------------------
+        // 8. 유틸리티 함수
+        // -----------------------------------------------------
+
+        // 팝업 함수 (X-Frame-Options 오류 방지를 위해 새 탭으로 띄우도록 수정)
+        function openPopup(link, title) {
+             if (link && link !== '#') {
+                 window.open(link, '_blank');
+            } else {
+                 alert(`"${title}"의 링크 정보가 없습니다.`);
+            }
+        }
+
+        // 검색 디바운스 함수
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+        const debounceSearchArticles = debounce(renderCurrentView, 300);
+        const debounceSearchPublications = debounce(renderCurrentView, 300);
+
+        // -----------------------------------------------------
+        // 9. 이벤트 리스너 및 초기화
+        // -----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            // 탭 버튼 클릭 이벤트 설정
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showTab(e.target.getAttribute('data-source'));
+                });
+            });
+
+            // 초기 데이터 로드 시작
+            loadData();
+        });
+
+    </script>
+</body>
+</html>
+
