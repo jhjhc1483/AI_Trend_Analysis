@@ -7,8 +7,8 @@
     <style>
         /* 기본 스타일 */
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
+
         /* 새로 추가: 고정 헤더 스타일 */
-        
         #header-fixed {
             position: fixed;
             top: 0;
@@ -108,9 +108,12 @@
     </style>
 </head>
 <body>
-
     <div id="header-fixed">
-        인공지능 일일동향 분석
+        육군본부 인공지능 일일동향 분석
+
+        <button id="runActionBtn" style="padding: 10px 20px; cursor: pointer;">
+    기사 업데이트
+        </button>
     </div>
 
     <div class="container">
@@ -222,6 +225,42 @@
     </div>
 
     <script>
+    // github Actions 원격 실행
+        document.getElementById('runActionBtn').addEventListener('click', function() {
+    // 사용자에게 한 번 더 확인
+    if (!confirm("기사를 불러오시겠습니까?")) return;
+
+    const OWNER = "jhjhc1483";
+    const REPO = "AI_Trend_Analysis";
+    const WORKFLOW_ID = "main.yml";
+    const ACCESS_TOKEN = "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"; 
+
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            "Authorization": `token ${ACCESS_TOKEN}`,
+            "Accept": "application/vnd.github.v3+json",
+        },
+        body: JSON.stringify({
+            ref: "main" // 혹은 실행을 원하는 브랜치 명
+        })
+    })
+    .then(response => {
+        if (response.status === 204) {
+            alert("새로고침 완료!");
+        } else {
+            alert("❌ 실패: " + response.status);
+            console.error(response);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("에러가 발생했습니다. 콘솔 창을 확인하세요.");
+    });
+});
+//github 완료
         // -----------------------------------------------------
         // 1. 전역 변수 설정 및 데이터 로드 파일 정의
         // -----------------------------------------------------
@@ -236,13 +275,13 @@
         let favoritePublications = new Set();
         
         const FILES_TO_LOAD = [
-            { url: 'codes/aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
-            { url: 'codes/etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
-            { url: 'codes/mnd.json', site: 'MND', isArticle: true, displayName: '국방뉴스' },
-            { url: 'codes/iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
-            { url: 'codes/nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
-            { url: 'codes/STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
-            { url: 'codes/NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' }
+            { url: 'aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
+            { url: 'etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
+            { url: 'mnd.json', site: 'MND', isArticle: true, displayName: '국방뉴스' },
+            { url: 'iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
+            { url: 'nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
+            { url: 'STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
+            { url: 'NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' }
         ];
 
         // -----------------------------------------------------
@@ -254,15 +293,9 @@
             const favPublications = localStorage.getItem('favoritePublications');
             if (favArticles) favoriteArticles = new Set(JSON.parse(favArticles));
             if (favPublications) favoritePublications = new Set(JSON.parse(favPublications));
-        
-            // 캐시 버스팅을 위한 현재 시간 (밀리초) - 매번 고유한 값 생성
-            const cacheBuster = Date.now();
-        
+
             const promises = FILES_TO_LOAD.map(file => {
-                // URL에 고유한 쿼리 파라미터 추가
-                const urlWithCacheBuster = `${file.url}?_=${cacheBuster}`;
-        
-                return fetch(urlWithCacheBuster) // 수정된 URL 사용
+                return fetch(file.url)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Failed to load ${file.url}: ${response.statusText}`);
@@ -287,7 +320,7 @@
                         return []; // 오류 발생 시 빈 배열 반환
                     });
             });
-        
+
             Promise.all(promises)
                 .then(results => {
                     results.forEach(siteData => {
@@ -299,10 +332,10 @@
                             }
                         }
                     });
-        
+
                     allDataLoaded = true;
                     console.log(`총 ${articleData.length}개의 기사 데이터와 ${publicationData.length}개의 간행물 데이터 로드 완료.`);
-        
+                    
                     // 초기 탭 렌더링 (HOME)
                     showTab('HOME');
                 })
@@ -610,4 +643,3 @@
     </script>
 </body>
 </html>
-
