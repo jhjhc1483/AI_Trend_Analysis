@@ -19,8 +19,8 @@ items=soup.select(".article.know")
 for i in range(1, 6):
     try:
         selector_base = f".article.know > ul > li:nth-child({i}) > a"
-        
         name = soup.select_one(selector_base).attrs['title']
+        name = name.rstrip('}')
         category = soup.select_one(f"{selector_base} > span.category").text
         code0 = soup.select_one(selector_base).attrs['onclick']
         
@@ -103,3 +103,4 @@ with open(full_path, 'w', encoding='utf-8') as f:
     json.dump(final_data, f, indent=4, ensure_ascii=False)
 
 print(f"\n최종 데이터가 '{full_path}'에 성공적으로 저장되었습니다.")
+
