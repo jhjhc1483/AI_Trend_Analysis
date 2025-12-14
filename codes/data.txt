@@ -1,8 +1,14 @@
 [2025-12-15 AI 일일 동향 보고]
 
 [기타]
-페블, 대화 녹음용 11만원짜리 AI 스마트 링 출시
-https://www.aitimes.com/news/articleView.html?idxno=204687
+미스트랄, 중국보다 강력한 코딩 모델 ‘데브스트랄 2’ 오픈 소스 출시
+https://www.aitimes.com/news/articleView.html?idxno=204681
+
+용인시, 한국ESG대상 지자체 환경·사회·거버넌스 대상 수상
+https://www.etnews.com/20251211000032
+
+특별인터뷰 성일종 국회 국방위원장
+https://www.mnd.go.kr/cop/kookbang/kookbangIlboView.do?siteId=mnd&pageIndex=1&findType=&findWord=&categoryCode=dema0003&boardSeq=46900&startDate=&endDate=&id=mnd_020101000000
 
 [간행물]
 [The AI Report 2025-17] 사람 중심의 AI 금융 추진 전략}
