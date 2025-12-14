@@ -353,7 +353,7 @@
             body: JSON.stringify({ ref: "main" })    
         });        
         if (res2.status === 204) {
-            alert("✅ 일일 동향을 텍스트로 추출 합니다.\n약 20초 후 페이지를 새로고침 하고 대시보드에서 'Copy'를 누르세요.");
+            alert("✅ 일일 동향을 텍스트로 추출 합니다.\n약 30초 후 페이지를 새로고침 하고 대시보드에서 'Copy'를 누르세요.");
         } else if (res2.status === 401) {
             alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
         } else if (res2.status === 404) {
