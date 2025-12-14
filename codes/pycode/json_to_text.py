@@ -3,10 +3,17 @@ from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
 
+
+# 현재 파일: codes/pycode/report.py
+# 프로젝트 루트로 이동
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 FILES = [
-    "codes/favorites/favorite_articles.json",
-    "codes/favorites/favorite_publications.json",
+    PROJECT_ROOT / "codes/favorites/favorite_articles.json",
+    PROJECT_ROOT / "codes/favorites/favorite_publications.json",
 ]
+
+OUTPUT_FILE = PROJECT_ROOT / "data.txt"
 
 FIXED_CATEGORIES = ["국방", "육군", "민간", "기타"]
 LAST_CATEGORY = "간행물"
@@ -25,11 +32,9 @@ def load_articles(files):
 
 def categorize_articles(articles):
     categorized = defaultdict(list)
-
     for item in articles:
         category = item.get("category", "기타")
         categorized[category].append(item)
-
     return categorized
 
 
@@ -39,18 +44,16 @@ def generate_report_text(categorized):
 
     # 1. 고정 카테고리
     for category in FIXED_CATEGORIES:
-        if category not in categorized:
-            continue
+        if category in categorized:
+            lines.append(f"[{category}]")
+            for item in categorized[category]:
+                lines.append(item["title"])
+                lines.append(item["link"])
+                lines.append("")
 
-        lines.append(f"[{category}]")
-        for item in categorized[category]:
-            lines.append(item["title"])
-            lines.append(item["link"])
-            lines.append("")
-
-    # 2. 그외 카테고리 (실제 이름으로 출력)
+    # 2. 그외 카테고리 (실제 카테고리명)
     extra_categories = sorted(
-        c for c in categorized.keys()
+        c for c in categorized
         if c not in FIXED_CATEGORIES and c != LAST_CATEGORY
     )
 
@@ -61,7 +64,7 @@ def generate_report_text(categorized):
             lines.append(item["link"])
             lines.append("")
 
-    # 3. 간행물 (항상 마지막)
+    # 3. 간행물
     if LAST_CATEGORY in categorized:
         lines.append(f"[{LAST_CATEGORY}]")
         for item in categorized[LAST_CATEGORY]:
@@ -79,7 +82,7 @@ def main():
 
     print(report_text)
 
-    with open("daily_ai_report.txt", "w", encoding="utf-8") as f:
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(report_text)
 
 
