@@ -35,16 +35,18 @@
             overflow: hidden; 
             margin-top: 80px; 
             min-height: calc(100vh - 120px); 
+            overflow-x: auto;
         }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(0px, 1fr));
             gap: 100px;
+            border-collapse: collapse;
         }   
         .card {
         padding: 30px;
         border: 0px solid #ddd;
-        border-radius: 8px;
+        border-radius: 8px; width: 100%; width: 1100px; 
         }     
   
         /* 사이드바 (메뉴) 스타일 */
@@ -158,11 +160,11 @@
     </style>
 </head>
 <body>
-</div>
+
     <div id="header-fixed">
         인공지능 일일동향 분석
     </div>
-    <div class="container">
+    <div class="container" >
         <div class="sidebar">
             <div class="logo">AI 동향분석</br>
                 <div class="rights"><button  id="runActionBtn" style="
@@ -232,7 +234,7 @@
             <h1 id="main-content-title">홈 (대시보드)</h1>
 
             <div id="dashboard-view">
-                <h2><span style="margin-right: 800px;">📊 요약 정보</span><button id="copyBtn">💥Copy💥</button>
+                <h2><span style="margin-right: 810px;">📊 요약 정보</span><button id="copyBtn">💥Copy💥</button>
                     <p id="status"></p></h2>
                 <div class="stats-grid">
                     <div class="stat-card">
