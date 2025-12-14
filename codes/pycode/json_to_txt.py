@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
-
+from zoneinfo import ZoneInfo  # Python 3.9 이상
 
 # 현재 파일: codes/pycode/report.py
 # 프로젝트 루트로 이동
@@ -39,7 +39,7 @@ def categorize_articles(articles):
 
 
 def generate_report_text(categorized):
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y-%m-%d")
     lines = [f"[{today} AI 일일 동향 보고]\n"]
 
     # 1. 고정 카테고리
