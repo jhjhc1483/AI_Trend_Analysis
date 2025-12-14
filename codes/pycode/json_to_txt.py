@@ -13,7 +13,7 @@ FILES = [
     PROJECT_ROOT / "codes/favorites/favorite_publications.json",
 ]
 
-OUTPUT_FILE = PROJECT_ROOT / "data.txt"
+OUTPUT_FILE = PROJECT_ROOT / "codes/data.txt"
 
 FIXED_CATEGORIES = ["국방", "육군", "민간", "기타"]
 LAST_CATEGORY = "간행물"
