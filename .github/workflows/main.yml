@@ -107,3 +107,10 @@ jobs:
           file_pattern: 'codes/mnd.json'
           commit_message: 'Automated NIA data update [skip ci]'
           branch: main # 또는 master (사용하는 브랜치 이름으로 변경)          
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'data.txt'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)       
