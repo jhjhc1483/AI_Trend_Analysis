@@ -868,7 +868,7 @@
         }
 
         document.getElementById('copyBtn').addEventListener('click', () => {
-        fetch('data.txt')
+        fetch('codes/data.txt')
             .then(response => response.text())
             .then(text => {
             return navigator.clipboard.writeText(text);
