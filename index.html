@@ -116,7 +116,7 @@
             background-color: #ecf0f1;
             margin-top: 20px;
         }
-        #copyBtn {
+        #loadFileBtn,#runActionBtn2 {
             padding: 10px 20px;
             font-size: 14px;
             border-radius: 8px;
@@ -127,7 +127,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        #copyBtn:hover {
+        #loadFileBtn:hover,#runActionBtn2:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
         }
@@ -160,31 +160,42 @@
     </style>
 </head>
 <body>
+<div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+    width:700px; height:500px; background:white; border:2px solid #333; border-radius:8px; z-index:1000; box-shadow:0 0 10px rgba(0,0,0,0.5);">
+    <div style="padding:10px; height:calc(100% - 50px); overflow:auto; white-space: pre-wrap;" id="popupContent"></div>
+    <div style="text-align:right; padding:5px; border-top:1px solid #ccc;">
+        <button id="copyBtn2">복사하기</button>
+        <button id="closeBtn">닫기</button>
+    </div>
+</div>
 
+<!-- 배경 어둡게 -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:999;"></div>
     <div id="header-fixed">
         인공지능 일일동향 분석
     </div>
     <div class="container" >
         <div class="sidebar">
             <div class="logo">AI 동향분석</br>
-                <div class="rights"><button  id="runActionBtn" style="
-                padding: 2px 2px;
-                background-color: #2ea44f; 
-                color: white; 
-                border: none; 
-                border-radius: 6px; 
-                font-weight: bold; 
-                cursor: pointer;">
-                기사 업데이트 </button>    
-            <button id="runActionBtn2" style="
-                padding: 2px 2px;
-                background-color: #2ea44f; 
-                color: white; 
-                border: none; 
-                border-radius: 6px; 
-                font-weight: bold; 
-                cursor: pointer;">
-                텍스트만들기 </button> </div>
+                <div class="rights">
+                    <button  id="runActionBtn" style="
+                    padding: 2px 2px;
+                    background-color: #2ea44f; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 6px; 
+                    font-weight: bold; 
+                    cursor: pointer;"> 기사 업데이트 </button>   
+                    <button id="uploadFavoritesBtn" style="
+                    padding: 2px 2px;
+                    background-color: #2ea44f; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 6px; 
+                    font-weight: bold; 
+                    cursor: pointer;"> 즐겨찾기 저장 </button> 
+                </div>
             </div>
                     <p id="status"></p>
 
@@ -198,11 +209,6 @@
                     <div style="display: flex; align-items: center; padding-right: 10px;">
                         <a href="#" class="tab-button" data-source="ARTICLE_FAV" style="flex-grow: 1;">⭐️ 즐겨찾기</a>
                         <button onclick="clearFavorites('ARTICLE')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.75em; height: 24px;">초기화</button>
-                        <button onclick="uploadFavoritesToGitHub('ARTICLE')"
-                            style="background:#3498db;color:white;border:none;border-radius:4px;
-                            cursor:pointer;padding:2px 6px;font-size:0.75em;height:24px;">
-                            JSON
-                        </button>
                     </div>
 
                     <a href="#" class="tab-button" data-source="AITIMES">AI Times</a>
@@ -215,11 +221,6 @@
                     <div style="display: flex; align-items: center; padding-right: 10px;">
                         <a href="#" class="tab-button" data-source="PUBLICATION_FAV" style="flex-grow: 1;">⭐️ 즐겨찾기</a>
                         <button onclick="clearFavorites('PUBLICATION')" style="background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.75em; height: 24px;">초기화</button>
-                    <button onclick="uploadFavoritesToGitHub('PUBLICATION')"
-                        style="background:#3498db;color:white;border:none;border-radius:4px;
-                            cursor:pointer;padding:2px 6px;font-size:0.75em;height:24px;">
-                            JSON
-                    </button>
                     </div>
                     <a href="#" class="tab-button" data-source="NIA">NIA</a>
                     <a href="#" class="tab-button" data-source="IITP">IITP</a>
@@ -234,7 +235,8 @@
             <h1 id="main-content-title">홈 (대시보드)</h1>
 
             <div id="dashboard-view">
-                <h2><span style="margin-right: 810px;">📊 요약 정보</span><button id="copyBtn">💥Copy💥</button>
+                <h2><span style="margin-right: 680px;">📊 요약 정보</span> <button id="runActionBtn2">
+                텍스트만들기 </button> <button id="loadFileBtn">텍스트추출</button>
                     <p id="status"></p></h2>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -311,6 +313,38 @@
     </div>
 
     <script>
+    //github 레포에 있는 data.txt를 그대로 긁어와서 팝업창에 띄우기
+    const url = "https://raw.githubusercontent.com/jhjhc1483/AI_Trend_Analysis/main/codes/data.txt";
+
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('overlay');
+    const contentDiv = document.getElementById('popupContent');
+
+    document.getElementById('loadFileBtn').addEventListener('click', async function() {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const text = await res.text();
+            contentDiv.textContent = text; // 내용 표시
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            alert("파일을 불러오는 중 오류가 발생했습니다: " + error.message);
+        }
+    });
+    // 닫기 버튼
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    });
+
+    // 복사 버튼
+    document.getElementById('copyBtn2').addEventListener('click', () => {
+        navigator.clipboard.writeText(contentDiv.textContent)
+            .then(() => alert("복사 완료!"))
+            .catch(err => alert("복사 실패: " + err));
+    });
     document.getElementById('runActionBtn').addEventListener('click', async function() {
     const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
     if (!token) {
@@ -366,7 +400,7 @@
             body: JSON.stringify({ ref: "main" })    
         });        
         if (res2.status === 204) {
-            alert("✅ 일일 동향을 텍스트로 추출 합니다.\n약 30초 후 페이지를 새로고침 하고 대시보드에서 'Copy'를 누르세요.");
+            alert("✅ 즐겨찾기에 있는 목록을 일일 동향을 텍스트로 만듭니다.\n\n약 30초 후 페이지를 새로고침 하고 대시보드에서 \n'텍스트추출'을 누르세요.");
         } else if (res2.status === 401) {
             alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
         } else if (res2.status === 404) {
@@ -397,13 +431,13 @@
         let favoritePublications = new Map(); // 간행물은 카테고리 없음, Set 유지
         
         const FILES_TO_LOAD = [
-            { url: 'codes/aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
-            { url: 'codes/etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
-            { url: 'codes/mnd.json', site: 'MND', isArticle: true, displayName: '국방뉴스' },
-            { url: 'codes/iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
-            { url: 'codes/nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
-            { url: 'codes/STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
-            { url: 'codes/NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' }
+            { url: 'aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
+            { url: 'etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
+            { url: 'mnd.json', site: 'MND', isArticle: true, displayName: '국방뉴스' },
+            { url: 'iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
+            { url: 'nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
+            { url: 'STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
+            { url: 'NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' }
         ];
 
         // -----------------------------------------------------
@@ -802,80 +836,87 @@
         });
 
         //github에 즐겨찾기에 있는 목록을 json으로 저장
-        async function uploadFavoritesToGitHub(type) {
-            token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
+        document.getElementById('uploadFavoritesBtn').addEventListener('click', async function() {
+            // 토큰 입력
+            const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" +
+                        prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
             if (!token) return alert("토큰이 필요합니다.");
 
             const OWNER = "jhjhc1483";
             const REPO = "AI_Trend_Analysis";
             const BRANCH = "main";
 
-            const path = type === "ARTICLE"
-                ? "codes/favorites/favorite_articles.json"
-                : "codes/favorites/favorite_publications.json";
-
-            let data;
-
-            if (type === "ARTICLE") {
-                data = articleData
-                    .filter(item => favoriteArticles.has(item.link))
-                    .map(item => ({
-                        title: item.title,
-                        link: item.link,
-                        category: favoriteArticles.get(item.link)
-                    }));
-            } else {
-                data = publicationData
-                    .filter(item => favoritePublications.has(item.link))
-                    .map(item => ({
-                        title: item.title,
-                        link: item.link,
-                        category: favoritePublications.get(item.link)
-                    }));
-            }
-
-            if (data.length === 0) {
-                alert("업로드할 데이터가 없습니다.");
-                return;
-            }
-
-            const jsonString = JSON.stringify(data, null, 2);
-            const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
-
-            // 기존 파일 SHA 조회 (있으면 수정, 없으면 생성)
-            let sha = null;
-            const getUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
-            const getRes = await fetch(getUrl, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (getRes.ok) {
-                const fileData = await getRes.json();
-                sha = fileData.sha;
-            }
-
-            const putRes = await fetch(getUrl, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
+            // 두 가지 타입 처리
+            const files = [
+                {
+                    type: "ARTICLE",
+                    path: "codes/favorites/favorite_articles.json",
+                    data: articleData
+                        .filter(item => favoriteArticles.has(item.link))
+                        .map(item => ({
+                            title: item.title,
+                            link: item.link,
+                            category: favoriteArticles.get(item.link)
+                        }))
                 },
-                body: JSON.stringify({
-                    message: `update ${path}`,
-                    content: encodedContent,
-                    branch: BRANCH,
-                    ...(sha && { sha })
-                })
-            });
+                {
+                    type: "PUBLICATION",
+                    path: "codes/favorites/favorite_publications.json",
+                    data: publicationData
+                        .filter(item => favoritePublications.has(item.link))
+                        .map(item => ({
+                            title: item.title,
+                            link: item.link,
+                            category: favoritePublications.get(item.link)
+                        }))
+                }
+            ];
 
-            if (putRes.ok) {
-                alert("✅ JSON 파일 저장 완료");
-            } else {
-                const err = await putRes.json();
-                alert(`❌ 실패: ${err.message}`);
+            for (const file of files) {
+                if (file.data.length === 0) {
+                    console.log(`${file.type} 업로드할 데이터 없음, 건너뜀`);
+                    continue;
+                }
+
+                const jsonString = JSON.stringify(file.data, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+                // 기존 파일 SHA 조회
+                let sha = null;
+                const getUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${file.path}`;
+                const getRes = await fetch(getUrl, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (getRes.ok) {
+                    const fileData = await getRes.json();
+                    sha = fileData.sha;
+                }
+
+                // 파일 업로드 (PUT)
+                const putRes = await fetch(getUrl, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: `update ${file.path}`,
+                        content: encodedContent,
+                        branch: BRANCH,
+                        ...(sha && { sha })
+                    })
+                });
+
+                if (putRes.ok) {
+                    console.log(`✅ ${file.type} JSON 파일 저장 완료`);
+                } else {
+                    const err = await putRes.json();
+                    console.error(`❌ ${file.type} 업로드 실패: ${err.message}`);
+                }
             }
-        }
-                
+
+            alert("✅ 모든 데이터 업로드 완료");
+        });
 
             //로컬로 즐겨찾기에 있는 목록을 json으로 추출하는 함수(안쓰고 있음)
         function exportFavoritesToJSON(type) {
@@ -922,22 +963,6 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
-
-        document.getElementById('copyBtn').addEventListener('click', () => {
-        fetch('codes/data.txt')
-            .then(response => response.text())
-            .then(text => {
-            return navigator.clipboard.writeText(text);
-            })
-            .then(() => {
-            alert('복사 완료!');
-            })
-            .catch(err => {
-            console.error(err);
-            alert('복사 실패');
-            });
-        });
-
     </script>
 </body>
 </html>
