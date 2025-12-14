@@ -869,7 +869,7 @@
             });
 
             if (putRes.ok) {
-                alert("✅ GitHub에 JSON 파일 저장 완료");
+                alert("✅ JSON 파일 저장 완료");
             } else {
                 const err = await putRes.json();
                 alert(`❌ 실패: ${err.message}`);
