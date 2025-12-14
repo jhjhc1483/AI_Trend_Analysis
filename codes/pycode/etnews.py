@@ -7,7 +7,7 @@ import os
 import re
 
 
-response = requests.get("https://search.etnews.com/etnews/search.html?kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&date=0&startDate=&endDate=&detailSearch=true&category=CATEGORY1&pageSize=&search_source=&sort=1&preKwd%5B0%5D=AI")
+response = requests.get("https://search.etnews.com/etnews/search.html?kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&date=0&startDate=&endDate=&detailSearch=true&category=CATEGORY1&pageSize=&search_source=&sort=1&preKwd%5B0%5D=AI", verify=False)
 html = response.text
 soup = BeautifulSoup(html, 'html.parser')
 
