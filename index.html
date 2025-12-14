@@ -314,8 +314,7 @@
 
     <script>
     //github 레포에 있는 data.txt를 그대로 긁어와서 팝업창에 띄우기
-    const url = "https://raw.githubusercontent.com/jhjhc1483/AI_Trend_Analysis/main/codes/data.txt";
-
+    const url = "https://raw.githubusercontent.com/jhjhc1483/AI_Trend_Analysis/main/codes/data.txt?t=${Date.now()}";
     const popup = document.getElementById('popup');
     const overlay = document.getElementById('overlay');
     const contentDiv = document.getElementById('popupContent');
