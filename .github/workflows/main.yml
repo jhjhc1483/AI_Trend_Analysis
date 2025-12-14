@@ -63,7 +63,12 @@ jobs:
       # 7. codes/pycode/mnd.py 실행
       - name: Run mnd.py
         run: |
-          python codes/pycode/mnd.py          
+          python codes/pycode/mnd.py      
+      
+      # 8. codes/pycode/STEPI.py 실행
+      - name: Run STEPI.py
+        run: |
+          python codes/pycode/STEPI.py               
 
       # 향후 추가될 다른 Python 스크립트 실행을 위한 주석 처리된 예시
       # - name: Run another_script.py
@@ -101,3 +106,10 @@ jobs:
           file_pattern: 'codes/mnd.json'
           commit_message: 'Automated NIA data update [skip ci]'
           branch: main # 또는 master (사용하는 브랜치 이름으로 변경)          
+      
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/STEPI.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)      
