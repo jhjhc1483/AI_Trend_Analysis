@@ -154,26 +154,32 @@
     </div>
     <div class="container">
         <div class="sidebar">
-
-            <div class="logo">AI 동향분석
-            <button id="runActionBtn" style="
-                padding: 2px 7px;
+            <div class="logo">AI 동향분석</br>
+                <div class="rights"><button  id="runActionBtn" style="
+                padding: 2px 2px;
                 background-color: #2ea44f; 
                 color: white; 
                 border: none; 
                 border-radius: 6px; 
                 font-weight: bold; 
                 cursor: pointer;">
-                업데이트
-            </button>
-            
+                기사 업데이트 </button>    
+            <button id="runActionBtn2" style="
+                padding: 2px 2px;
+                background-color: #2ea44f; 
+                color: white; 
+                border: none; 
+                border-radius: 6px; 
+                font-weight: bold; 
+                cursor: pointer;">
+                텍스트만들기 </button> </div>
             </div>
+                    <p id="status"></p>
+
             <nav id="main-nav">
                 <div class="menu-group">
                     <a href="#" class="tab-button active" data-source="HOME">🏠 대시보드</a>
-
                 </div>
-                
                 <div class="menu-group">
                     <div class="menu-title">기사 (NEWS)</div>
                     <a href="#" class="tab-button" data-source="ARTICLE_ALL">📰 전체보기</a>
@@ -303,29 +309,65 @@
     const WORKFLOW_ID = "main.yml";
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
     try {
-        const response = await fetch(url, {
+        const res1 = await fetch(url, {
             method: 'POST',
             headers: {
                 "Authorization": `token ${token}`,
                 "Accept": "application/vnd.github.v3+json",
             },
-            body: JSON.stringify({ ref: "main" })
-        });
-        if (response.status === 204) {
+            body: JSON.stringify({ ref: "main" })    
+        }); 
+        if (res1.status === 204) {
             alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
-        } else if (response.status === 401) {
+        } else if (res1.status === 401) {
             alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
-        } else if (response.status === 404) {
+        } else if (res1.status === 404) {
             alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
         } else {
-            const errorData = await response.json();
-            alert(`❌ 실패: ${response.status}\n메시지: ${errorData.message}`);
+            const errorData = await res1.json();
+            alert(`❌ 실패: ${res1.status}\n메시지: ${errorData.message}`);
         }
     } catch (error) {
         console.error('Error:', error);
         alert("네트워크 오류가 발생했습니다.");
     }
 });
+
+    document.getElementById('runActionBtn2').addEventListener('click', async function() {
+    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
+    if (!token) {
+        alert("토큰이 입력되지 않았습니다.");
+        return;
+    }
+    const OWNER = "jhjhc1483";
+    const REPO = "AI_Trend_Analysis";
+    const WORKFLOW_ID = "json_to_txt.yml";
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+    try {
+        const res2 = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Authorization": `token ${token}`,
+                "Accept": "application/vnd.github.v3+json",
+            },
+            body: JSON.stringify({ ref: "main" })    
+        });        
+        if (res2.status === 204) {
+            alert("✅ 일일 동향을 텍스트로 추출 합니다.\n약 20초 후 페이지를 새로고침 하고 대시보드에서 'Copy'를 누르세요.");
+        } else if (res2.status === 401) {
+            alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
+        } else if (res2.status === 404) {
+            alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
+        } else {
+            const errorData = await res2.json();
+            alert(`❌ 실패: ${res2.status}\n메시지: ${errorData.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert("네트워크 오류가 발생했습니다.");
+    }
+});
+
 
         // -----------------------------------------------------
         // 1. 전역 변수 설정 및 데이터 로드 파일 정의
@@ -532,6 +574,7 @@
                 </li>
             `).join('');
         }
+
         // -----------------------------------------------------
         // 6. 목록 렌더링 함수 (기사 및 간행물 공통)
         // -----------------------------------------------------
