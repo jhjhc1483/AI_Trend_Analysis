@@ -1,0 +1,29 @@
+[2025-12-14 AI 일일 동향 보고]
+
+[국방]
+오픈AI, 인재 경쟁 심화에 따라 ＇6개월 근무 후 주식 지급＇ 규정 폐지
+https://www.aitimes.com/news/articleView.html?idxno=204777
+
+[육군]
+LGU+, 국내 통신사 첫 ‘구글 AI 프로’ 상품 출시
+https://www.aitimes.com/news/articleView.html?idxno=204764
+
+광주시, ＇국립치의학연구원 유치＇ 결의…치의학산업 선도
+https://www.etnews.com/20251214000046
+
+[기타]
+구글, ‘제미나이 딥 리서치’ 전면 개편...“검색 넘어 에이전트로”
+https://www.aitimes.com/news/articleView.html?idxno=204767
+
+구글, ‘제미나이 2.5 플래시 네이티브 오디오’ 공개...〃실시간 음성 에이전트로 진화〃
+https://www.aitimes.com/news/articleView.html?idxno=204770
+
+[간행물]
+2025년 10월 정보통신산업(ICT) 수출입 동향
+https://www.iitp.kr/web/lay1/program/S1T14C61/itfind/view.do?seq=02-008-251209-000001&cpage=1&rows=10&searchTarget=all
+
+데이터파이프라인, 제니시스미션, 구글TPU [AI·ICT Brief 2025-41호]
+https://www.iitp.kr/web/lay1/program/S1T62C65/itfind/view.do?seq=02-001-251205-000001&cpage=1&rows=10&searchTarget=all
+
+[The AI Report 2025-17] 사람 중심의 AI 금융 추진 전략}
+https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=82618&bcIdx=28833&parentSeq=28833
