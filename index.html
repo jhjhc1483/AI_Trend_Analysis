@@ -311,27 +311,78 @@
     <div id="footer-copyright">
         &copy; maj.cjh. All rights reserved.
     </div>
-
     <script>
+        const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.\n코드를 모르면 'ESC'키를 누르세요.");    
+        const OWNER = "jhjhc1483";
+        const REPO = "AI_Trend_Analysis";
+        const BRANCH = "main";
+        document.getElementById('runActionBtn').addEventListener('click', async function() {
+        
+        if (!token) {
+            alert("토큰이 입력되지 않았습니다.");
+            return;
+        }
+
+        const WORKFLOW_ID = "main.yml";
+        const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
+        try {
+            const res1 = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Accept": "application/vnd.github.v3+json",
+                },
+                body: JSON.stringify({ ref: "main" })    
+            }); 
+            if (res1.status === 204) {
+                alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
+            } else if (res1.status === 401) {
+                alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
+            } else if (res1.status === 404) {
+                alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
+            } else {
+                const errorData = await res1.json();
+                alert(`❌ 실패: ${res1.status}\n메시지: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("네트워크 오류가 발생했습니다.");
+        }
+    });
+
     //github 레포에 있는 data.txt를 그대로 긁어와서 팝업창에 띄우기
-    const url = "https://raw.githubusercontent.com/jhjhc1483/AI_Trend_Analysis/main/codes/data.txt?t=${Date.now()}";
     const popup = document.getElementById('popup');
     const overlay = document.getElementById('overlay');
     const contentDiv = document.getElementById('popupContent');
 
-    document.getElementById('loadFileBtn').addEventListener('click', async function() {
+    const PATH = "codes/data.txt";
+    function base64ToUtf8(base64) {
+        const binary = atob(base64.replace(/\n/g, ""));
+        const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+        return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    document.getElementById('loadFileBtn').addEventListener('click', async () => {
         try {
-            const res = await fetch(url);
+            
+            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}`;
+            const headers = token ? { Authorization: `token ${token}` } : {};
+            const res = await fetch(url, { headers });
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            const text = await res.text();
+            
+            const data = await res.json();
+            // 한글 깨짐 없이 디코딩
+            const text = base64ToUtf8(data.content);            
             contentDiv.textContent = text; // 내용 표시
             popup.style.display = 'block';
             overlay.style.display = 'block';
+            console.log(text);
         } catch (error) {
             console.error(error);
-            alert("파일을 불러오는 중 오류가 발생했습니다: " + error.message);
+            alert("파일을 불러오는 중 오류 발생: " + error.message);
         }
     });
+   
     // 닫기 버튼
     document.getElementById('closeBtn').addEventListener('click', () => {
         popup.style.display = 'none';
@@ -344,49 +395,12 @@
             .then(() => alert("복사 완료!"))
             .catch(err => alert("복사 실패: " + err));
     });
-    document.getElementById('runActionBtn').addEventListener('click', async function() {
-    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
-    if (!token) {
-        alert("토큰이 입력되지 않았습니다.");
-        return;
-    }
-    const OWNER = "jhjhc1483";
-    const REPO = "AI_Trend_Analysis";
-    const WORKFLOW_ID = "main.yml";
-    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
-    try {
-        const res1 = await fetch(url, {
-            method: 'POST',
-            headers: {
-                "Authorization": `token ${token}`,
-                "Accept": "application/vnd.github.v3+json",
-            },
-            body: JSON.stringify({ ref: "main" })    
-        }); 
-        if (res1.status === 204) {
-            alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
-        } else if (res1.status === 401) {
-            alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
-        } else if (res1.status === 404) {
-            alert("❌ 실패: 저장소나 워크플로우를 찾을 수 없습니다. (404 Not Found)");
-        } else {
-            const errorData = await res1.json();
-            alert(`❌ 실패: ${res1.status}\n메시지: ${errorData.message}`);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert("네트워크 오류가 발생했습니다.");
-    }
-});
-
     document.getElementById('runActionBtn2').addEventListener('click', async function() {
-    const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
+    
     if (!token) {
         alert("토큰이 입력되지 않았습니다.");
         return;
     }
-    const OWNER = "jhjhc1483";
-    const REPO = "AI_Trend_Analysis";
     const WORKFLOW_ID = "json_to_txt.yml";
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
     try {
@@ -836,14 +850,6 @@
 
         //github에 즐겨찾기에 있는 목록을 json으로 저장
         document.getElementById('uploadFavoritesBtn').addEventListener('click', async function() {
-            // 토큰 입력
-            const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" +
-                        prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.");
-            if (!token) return alert("토큰이 필요합니다.");
-
-            const OWNER = "jhjhc1483";
-            const REPO = "AI_Trend_Analysis";
-            const BRANCH = "main";
 
             // 두 가지 타입 처리
             const files = [
