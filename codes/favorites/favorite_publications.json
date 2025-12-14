@@ -1,17 +1,24 @@
 [
   {
-    "title": "2025년 10월 정보통신산업(ICT) 수출입 동향",
-    "link": "https://www.iitp.kr/web/lay1/program/S1T14C61/itfind/view.do?seq=02-008-251209-000001&cpage=1&rows=10&searchTarget=all",
-    "category": "간행물"
-  },
-  {
-    "title": "데이터파이프라인, 제니시스미션, 구글TPU [AI·ICT Brief 2025-41호]",
-    "link": "https://www.iitp.kr/web/lay1/program/S1T62C65/itfind/view.do?seq=02-001-251205-000001&cpage=1&rows=10&searchTarget=all",
-    "category": "간행물"
-  },
-  {
     "title": "[The AI Report 2025-17] 사람 중심의 AI 금융 추진 전략}",
     "link": "https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=82618&bcIdx=28833&parentSeq=28833",
+    "category": "간행물"
+  },
+  {
+    "title": "[IT&Future Strategy 2025-05] 글로벌 AI∙디지털 혁신 사례로 본 국내기업 AX 전략}",
+    "link": "https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=25932&bcIdx=28846&parentSeq=28846",
+    "category": "간행물"
+  },
+  {
+    "title": "[The AI Report 2025-18] AI로 여는 지속가능한 복지․돌봄 혁신}",
+    "link": "https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=82618&bcIdx=28855&parentSeq=28855",
+    "category": "간행물"
+  },
+  {
+    "title": [
+      "미국 ARPA-E 에너지 R&amp;D의 시스템적 성공 조건과 시사점"
+    ],
+    "link": "https://www.stepi.re.kr/site/stepiko/report/View.do?pageIndex=1&cateTypeCd=STEPI_REPORT&tgtTypeCd=ALL&searchType=&reIdx=363&cateCont=A0501&cbIdx=0&searchKey=",
     "category": "간행물"
   }
 ]
