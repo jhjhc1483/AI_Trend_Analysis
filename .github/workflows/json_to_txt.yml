@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # Selenium, requests, beautifulsoup4, pandas, webdriver_manager 설치
-          pip install json
+          # pip install json
         
       # 1. codes/pycode/json_to_txt.py 실행
       - name: Run json_to_txt.py
