@@ -1,26 +1,16 @@
 [2025-12-15 AI 일일 동향 보고]
 
-[민간]
-KAIST-IBM연구소, 인간 뇌 처리 방식 활용 ‘AI 강화 학습’ 논문 발표
-https://www.aitimes.com/news/articleView.html?idxno=204761
+[국방]
+“한국이 한반도 재래식 방위 주도적 역할”
+https://www.mnd.go.kr/cop/kookbang/kookbangIlboView.do?siteId=mnd&pageIndex=1&findType=&findWord=&categoryCode=dema0003&boardSeq=46921&startDate=&endDate=&id=mnd_020101000000
 
-챗GPT, 2025년 미국 아이폰 무료 앱 다운로드 1위 올라
-https://www.aitimes.com/news/articleView.html?idxno=204782
-
-포티투마루, 디플정위 출신 고위공무원 영입…“공공 AX 사업 강화”
-https://www.etnews.com/20251212000294
-
-[정부]
-정부, AI 개발·이용 위한 ＇제로 트러스트＇ 보안 개발 착수
-https://www.etnews.com/20251212000251
-
-[해외]
-구글, ‘제미나이 2.5 플래시 네이티브 오디오’ 공개...〃실시간 음성 에이전트로 진화〃
-https://www.aitimes.com/news/articleView.html?idxno=204770
-
-日 인텔리전스·신흥안보 정책 강화...“한국도 전략기술 정책, 싱크탱크 기능 정비해야”
-https://www.etnews.com/20251214000097
+[기타]
+에너지 공기업 수장 교체 절차 가속…지원자 대거 몰려
+https://www.aitimes.com/news/articleView.html?idxno=204786
 
 [간행물]
-[The AI Report 2025-18] AI로 여는 지속가능한 복지․돌봄 혁신}
-https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=82618&bcIdx=28855&parentSeq=28855
+합성 데이터의 기술 동향과 향후 과제 [주간기술동향 2201호]
+https://www.iitp.kr/web/lay1/program/S1T62C66/itfind/view.do?seq=1386&cpage=1&rows=10&searchTarget=all
+
+UAE ICT 생태계 보고서
+https://www.nipa.kr/home/2-7-1-1/15794
