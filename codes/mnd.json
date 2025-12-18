@@ -948,5 +948,35 @@
         "일": "16",
         "시": "",
         "분": ""
+    },
+    {
+        "기사명": "국방부 업무보고",
+        "분류": "국방부 보도자료",
+        "링크": "https://www.mnd.go.kr/user/newsInUserRecord.action?siteId=mnd&page=1&newsId=I_669&newsSeq=I_104994&command=view&id=mnd_020500000000&findStartDate=&findEndDate=&findType=title&findWord=&findOrganSeq=",
+        "년": "2025",
+        "월": "12",
+        "일": "18",
+        "시": "",
+        "분": ""
+    },
+    {
+        "기사명": "핵추진잠수함 범정부협의체(TF) 회의 개최",
+        "분류": "국방부 보도자료",
+        "링크": "https://www.mnd.go.kr/user/newsInUserRecord.action?siteId=mnd&page=1&newsId=I_669&newsSeq=I_104990&command=view&id=mnd_020500000000&findStartDate=&findEndDate=&findType=title&findWord=&findOrganSeq=",
+        "년": "2025",
+        "월": "12",
+        "일": "18",
+        "시": "",
+        "분": ""
+    },
+    {
+        "기사명": "국방분야 혁신제품 지정제도 신설",
+        "분류": "국방부 보도자료",
+        "링크": "https://www.mnd.go.kr/user/newsInUserRecord.action?siteId=mnd&page=1&newsId=I_669&newsSeq=I_104991&command=view&id=mnd_020500000000&findStartDate=&findEndDate=&findType=title&findWord=&findOrganSeq=",
+        "년": "2025",
+        "월": "12",
+        "일": "18",
+        "시": "",
+        "분": ""
     }
 ]
