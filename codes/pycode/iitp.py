@@ -136,7 +136,7 @@ for i in range(0, 9):
             driver.quit()
 
 # --- 데이터 저장 로직 ---
-df4 = pd.DataFrame(data, columns=['제목', '분류', '링크', '년', '월', '일'])
+df11 = pd.DataFrame(data, columns=['제목', '분류', '링크', '년', '월', '일'])
 # print(df4.head())
 
 full_path = 'codes/iitp.json'
@@ -144,7 +144,7 @@ full_path = 'codes/iitp.json'
 # 디렉토리가 없으면 생성
 os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
-new_data = df4.to_dict('records') 
+new_data = df11.to_dict('records') 
 
 existing_data = []
 

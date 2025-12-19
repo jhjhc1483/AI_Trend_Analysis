@@ -34,9 +34,9 @@ for i in range(1,4):
         
         data.append([name, link, years, month, day, hour, minute])
 
-df11 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
+df12 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
 full_path = 'codes/AInews.json'
-new_data = df11.to_dict('records') # 새 DataFrame을 리스트 오브 딕셔너리 형태로 변환
+new_data = df12.to_dict('records') # 새 DataFrame을 리스트 오브 딕셔너리 형태로 변환
 
 # ----------------- JSON 이어 붙이기 및 중복 제거 로직 시작 -----------------
 
