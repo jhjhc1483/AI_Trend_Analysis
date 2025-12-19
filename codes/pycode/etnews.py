@@ -9,24 +9,17 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-session = Session()
-
-retries = Retry(
-    total=3,
-    backoff_factor=1,
-    status_forcelist=[403, 500, 502, 503, 504]
-)
-
-session.mount("https://", HTTPAdapter(max_retries=retries))
-
+session = requests.Session()
+retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('https://', adapter)
+headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
 # 전자신문 검색어 '인공지능' 5페이지까지 크롤링
 for i in range(1,6):
-    headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/120.0.0.0 Safari/537.36"
-}
-    response = requests.get(f"https://search.etnews.com/etnews/search.html?category=CATEGORY1&kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&pageNum={i}&pageSize=20&reSrchFlag=false&sort=1&startDate=&endDate=&detailSearch=true&preKwd%5B0%5D=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5", headers=headers, timeout=10)
+    
+    response = requests.get(f"https://search.etnews.com/etnews/search.html?category=CATEGORY1&kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&pageNum={i}&pageSize=20&reSrchFlag=false&sort=1&startDate=&endDate=&detailSearch=true&preKwd%5B0%5D=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5", headers=headers, timeout=10, verify=False)
     response.raise_for_status()
     html = response.text
     soup = BeautifulSoup(html, 'html.parser')
