@@ -1,110 +1,116 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import numpy as np
 import json
 import os
 import re
+import time
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-session = requests.Session()
-retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('https://', adapter)
+# 1. 세션 및 재시도 설정 (SSL 오류 및 연결 끊김 방지)
+session = Session()
+retries = Retry(
+    total=5,               # 재시도 횟수 증가
+    backoff_factor=1,      # 재시도 간격 (1초, 2초, 4초...)
+    status_forcelist=[403, 404, 500, 502, 503, 504]
+)
+session.mount("https://", HTTPAdapter(max_retries=retries))
+
+# 공통 헤더 설정 (브라우저인 것처럼 위장)
 headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-# 전자신문 검색어 '인공지능' 5페이지까지 크롤링
-for i in range(1,6):
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
+
+data = []
+
+# 전자신문 검색어 '인공지능' 1~5페이지까지 크롤링
+for i in range(1, 6):
+    print(f"--- 현재 {i}페이지 크롤링 중 ---")
+    search_url = f"https://search.etnews.com/etnews/search.html?category=CATEGORY1&kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&pageNum={i}&pageSize=20&reSrchFlag=false&sort=1&startDate=&endDate=&detailSearch=true"
     
-    response = requests.get(f"https://search.etnews.com/etnews/search.html?category=CATEGORY1&kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&pageNum={i}&pageSize=20&reSrchFlag=false&sort=1&startDate=&endDate=&detailSearch=true&preKwd%5B0%5D=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5", headers=headers, timeout=10, verify=False)
-    response.raise_for_status()
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
+    try:
+        response = session.get(search_url, headers=headers, timeout=15)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        items = soup.select(".news_list li")
+        for item in items:
+            try:
+                # 제목 및 링크 추출
+                title_tag = item.select_one(".text > strong > a")
+                if not title_tag: continue
+                
+                name = title_tag.text.strip()
+                # URL에서 숫자만 추출하여 상세 페이지 링크 생성
+                numbers = re.sub(r'[^\d]', '', title_tag.attrs['href'])
+                link = f"https://www.etnews.com/{numbers}"
+                
+                # 상세 페이지 접속 (여기서 session과 headers를 반드시 사용해야 함)
+                res_detail = session.get(link, headers=headers, timeout=15)
+                res_detail.raise_for_status()
+                soup_detail = BeautifulSoup(res_detail.text, 'html.parser')
+                
+                # 시간 정보 추출 및 파싱
+                time_tag = soup_detail.select_one("time")
+                if time_tag:
+                    # 예: "발행일 : 2025-12-19 10:30" 형태 대응
+                    time_text = time_tag.text.replace("발행일 : ", "").strip()
+                    # 날짜와 시간 분리 (공백 기준)
+                    parts = time_text.split(' ')
+                    date_part = parts[0] # 2025-12-19
+                    time_part = parts[1] # 10:30
+                    
+                    y, m, d = date_part.split('-')
+                    hr, mn = time_part.split(':')
+                    
+                    data.append([name, link, y, m, d, hr, mn])
+                
+                # 서버 부하 방지를 위한 미세한 지연 (0.1~0.5초)
+                time.sleep(0.3)
+                
+            except Exception as e:
+                print(f"상세 페이지 파싱 중 오류 발생 ({link}): {e}")
+                continue
 
+    except Exception as e:
+        print(f"{i}페이지 목록을 가져오는 중 오류 발생: {e}")
 
-    data = []
-    items=soup.select(".news_list li")
-    for item in items:
-        name = item.select_one(".text > strong").text.strip()
-        numbers = re.sub(r'[^\d]', '',item.select_one(".text > strong > a").attrs['href'])
-        # numbers = re.sub(r'[^\d]', '', link1)
-        #summary = item.select_one(".summary").text
-        link = f"https://www.etnews.com/{numbers}"
-        response = requests.get(link)
-        html2 = response.text
-        soup2 = BeautifulSoup(html2, 'html.parser')   
-        time = soup2.select_one("time").text
-        parts = time.split(' ')
-        date_part = parts[2]  
-        time_part = parts[3] 
-        d = date_part.split('-')
-        years = d[0]
-        month = d[1]
-        day = d[2]
-        d1 = time_part.split(':')
-        hour = d1[0]
-        minute = d1[1]
-        data.append([name,link,years,month,day,hour,minute])
-
-df2 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
+# 2. 데이터프레임 생성 및 정제
+df2 = pd.DataFrame(data, columns=['기사명', '링크', '년', '월', '일', '시', '분'])
 df2['기사명'] = df2['기사명'].fillna('').str.replace(r'\\', '', regex=True)
-df2['기사명'] = df2['기사명'].str.replace('\'', '＇', regex=False)
-df2['기사명'] = df2['기사명'].str.replace('\"', '〃', regex=False)
-# #엑셀 저장
-# #index=False 는 앞에 번호 없애기
-# df2.to_excel('result.xlsx', index=False)
-# full_path = 'D:/startcoding/python_crawling/04.기사 크롤링 사이트 만들기/etnews.json'
-# df2.to_json(full_path, orient='records', indent=4, force_ascii=False)
+df2['기사명'] = df2['기사명'].str.replace('\'', '＇', regex=False).str.replace('\"', '〃', regex=False)
 
-# ... (기존 엑셀 저장 코드)
-# df2.to_excel('result.xlsx', index=False)
-
+# 3. JSON 저장 및 중복 제거 로직
 full_path = 'codes/etnews.json'
-new_data = df2.to_dict('records') # 새 DataFrame을 리스트 오브 딕셔너리 형태로 변환
-
-# ----------------- JSON 이어 붙이기 및 중복 제거 로직 시작 -----------------
+# 폴더가 없으면 생성
+os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
 existing_data = []
-
-# 1. 기존 JSON 파일 로드
 if os.path.exists(full_path):
     try:
         with open(full_path, 'r', encoding='utf-8') as f:
-            # 파일이 비어있지 않은지 확인 후 로드
             content = f.read()
             if content:
                 existing_data = json.loads(content)
-            else:
-                print("기존 JSON 파일은 존재하지만 비어 있습니다. 새 데이터만 저장합니다.")
     except Exception as e:
-        print(f"기존 JSON 파일 로드 중 오류 발생 ({e}). 새 데이터만 저장합니다.")
-        existing_data = []
+        print(f"기존 파일 로드 실패: {e}")
 
-# 2. 새 데이터와 기존 데이터를 합치기
+# 새 데이터 합치기 및 중복 제거
+new_data = df2.to_dict('records')
 combined_data = existing_data + new_data
 
-# 3. 중복 제거 (가장 중요한 단계)
-# '링크'를 기준으로 중복 제거를 위한 Set을 생성합니다.
 seen_links = set()
 final_data = []
-
 for item in combined_data:
-    link = item.get('링크') # '링크' 컬럼 값을 가져옵니다.
-    
-    # '링크'가 None이거나 비어있지 않고, 아직 처리하지 않은 링크인 경우에만 추가
+    link = item.get('링크')
     if link and link not in seen_links:
         final_data.append(item)
         seen_links.add(link)
-        
-print(f"총 {len(existing_data)}개의 기존 데이터와 {len(new_data)}개의 새 데이터를 합쳤습니다.")
-print(f"중복을 제거한 후 최종 데이터는 총 {len(final_data)}개입니다.")
 
-# 4. 최종 데이터를 JSON 파일로 저장 (덮어쓰기)
-# indent=4와 force_ascii=False 옵션을 유지하여 가독성 및 한글 보존
+# 최종 저장
 with open(full_path, 'w', encoding='utf-8') as f:
     json.dump(final_data, f, indent=4, ensure_ascii=False)
 
-print(f"\n최종 데이터가 '{full_path}'에 성공적으로 저장되었습니다.")
+print(f"\n작업 완료! 최종 데이터 수: {len(final_data)}개")
