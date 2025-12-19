@@ -85,6 +85,11 @@ jobs:
         run: |
           python codes/pycode/dapa.py
 
+      # 12. codes/pycode/KISTI.py 실행
+      - name: Run KISTI.py
+        run: |
+          python codes/pycode/KISTI.py          
+
           # 향후 추가될 다른 Python 스크립트 실행을 위한 주석 처리된 예시
       # - name: Run another_script.py
       #   run: |
@@ -149,3 +154,10 @@ jobs:
           file_pattern: 'codes/dapa.json'
           commit_message: 'Automated NIA data update [skip ci]'
           branch: main # 또는 master (사용하는 브랜치 이름으로 변경)                
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/KISTI.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)     
