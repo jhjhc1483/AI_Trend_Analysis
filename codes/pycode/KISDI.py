@@ -18,7 +18,6 @@ for i in range(0,8):
     items=soup.select(".board_list > ul > li")
     a=1
     for item in items:
-        
         name = item.select_one(".board_list > ul > li > a > strong").text
         link_temp = item.select_one(".board_list > ul > li > a").attrs['onclick']
         numbers = re.findall(r"'\d+'", link_temp)
