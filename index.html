@@ -228,6 +228,7 @@
                     <a href="#" class="tab-button" data-source="STEPI">STEPI</a>
                     <a href="#" class="tab-button" data-source="NIPA">NIPA</a>
                     <a href="#" class="tab-button" data-source="KISDI">KISDI</a>
+                    <a href="#" class="tab-button" data-source="KISTI">KISTI</a>
                 </div>
             </nav> 
         </div>
@@ -455,6 +456,7 @@
             { url: 'codes/STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
             { url: 'codes/NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' },
             { url: 'codes/KISDI.json', site: 'KISDI', isArticle: false, displayName: 'KISDI' }
+            { url: 'codes/KISTI.json', site: 'KISTI', isArticle: false, displayName: 'KISTI' }
         ];
 
         // -----------------------------------------------------
@@ -587,7 +589,7 @@
 
             const isHome = sourceName === 'HOME';
             const isArticleView = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'MND', 'DAPA'].includes(sourceName);
-            const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA', 'KISDI'].includes(sourceName);
+            const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA', 'KISDI', 'KISTI'].includes(sourceName);
 
             document.getElementById('dashboard-view').style.display = isHome ? 'block' : 'none';
             document.getElementById('list-view').style.display = isHome ? 'none' : 'block';
