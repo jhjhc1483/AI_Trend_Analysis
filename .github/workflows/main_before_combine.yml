@@ -1,6 +1,6 @@
 # .github/workflows/main.yml
 
-name: Run Python Scripts Daily
+name: Run Python Scripts Daily(brefore_combine)
 
 on:
   # 1. 수동 실행 (Manual trigger) 설정
