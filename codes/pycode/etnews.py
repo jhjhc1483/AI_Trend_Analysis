@@ -5,6 +5,19 @@ import numpy as np
 import json
 import os
 import re
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+session = Session()
+
+retries = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[403, 500, 502, 503, 504]
+)
+
+session.mount("https://", HTTPAdapter(max_retries=retries))
 
 # 전자신문 검색어 '인공지능' 5페이지까지 크롤링
 for i in range(1,6):
