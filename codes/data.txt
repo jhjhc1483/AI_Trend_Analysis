@@ -1,9 +1,16 @@
 [2025-12-20 AI 일일 동향 보고]
 
+[국방]
+“한국이 한반도 재래식 방위 주도적 역할”
+https://www.mnd.go.kr/cop/kookbang/kookbangIlboView.do?siteId=mnd&pageIndex=1&findType=&findWord=&categoryCode=dema0003&boardSeq=46921&startDate=&endDate=&id=mnd_020101000000
+
 [기타]
-틱톡, 오라클 컨소시엄과 미국 합작회사 설립 계약 체결
-https://www.aitimes.com/news/articleView.html?idxno=204943
+에너지 공기업 수장 교체 절차 가속…지원자 대거 몰려
+https://www.aitimes.com/news/articleView.html?idxno=204786
 
 [간행물]
-주요국의 AX 정책 동향 분석 [ICT SPOT ISSUE(2025-11호)]
-https://www.iitp.kr/web/lay1/program/S1T62C68/itfind/view.do?seq=02-001-251204-000001&cpage=1&rows=10&searchTarget=all
+합성 데이터의 기술 동향과 향후 과제 [주간기술동향 2201호]
+https://www.iitp.kr/web/lay1/program/S1T62C66/itfind/view.do?seq=1386&cpage=1&rows=10&searchTarget=all
+
+UAE ICT 생태계 보고서
+https://www.nipa.kr/home/2-7-1-1/15794
