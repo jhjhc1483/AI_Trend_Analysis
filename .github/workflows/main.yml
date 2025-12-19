@@ -73,9 +73,19 @@ jobs:
       # 9. codes/pycode/NIPA.py 실행
       - name: Run NIPA.py
         run: |
-          python codes/pycode/NIPA.py                         
+          python codes/pycode/NIPA.py     
 
-      # 향후 추가될 다른 Python 스크립트 실행을 위한 주석 처리된 예시
+      # 10. codes/pycode/KISDI.py 실행
+      - name: Run KISDI.py
+        run: |
+          python codes/pycode/KISDI.py                          
+
+      # 11. codes/pycode/dapa.py 실행
+      - name: Run dapa.py
+        run: |
+          python codes/pycode/dapa.py
+
+          # 향후 추가될 다른 Python 스크립트 실행을 위한 주석 처리된 예시
       # - name: Run another_script.py
       #   run: |
       #     python codes/pycode/another_script.py
@@ -123,5 +133,19 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           file_pattern: 'codes/NIPA.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)                
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/KISDI.json'
+          commit_message: 'Automated NIA data update [skip ci]'
+          branch: main # 또는 master (사용하는 브랜치 이름으로 변경)                
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: 'codes/dapa.json'
           commit_message: 'Automated NIA data update [skip ci]'
           branch: main # 또는 master (사용하는 브랜치 이름으로 변경)                
