@@ -6,35 +6,37 @@ import json
 import os
 import re
 
+# 전자신문 검색어 '인공지능' 5페이지까지 크롤링
+for i in range(1,6):
+    response = requests.get(f"https://search.etnews.com/etnews/search.html?category=CATEGORY1&kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&pageNum={i}&pageSize=20&reSrchFlag=false&sort=1&startDate=&endDate=&detailSearch=true&preKwd%5B0%5D=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5")
 
-response = requests.get("https://search.etnews.com/etnews/search.html?kwd=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5&date=0&startDate=&endDate=&detailSearch=true&category=CATEGORY1&pageSize=&search_source=&sort=1&preKwd%5B0%5D=AI",verify=False)
-html = response.text
-soup = BeautifulSoup(html, 'html.parser')
+    html = response.text
+    soup = BeautifulSoup(html, 'html.parser')
 
 
-data = []
-items=soup.select(".news_list li")
-for item in items:
-    name = item.select_one(".text > strong").text.strip()
-    numbers = re.sub(r'[^\d]', '',item.select_one(".text > strong > a").attrs['href'])
-    # numbers = re.sub(r'[^\d]', '', link1)
-    #summary = item.select_one(".summary").text
-    link = f"https://www.etnews.com/{numbers}"
-    response = requests.get(link)
-    html2 = response.text
-    soup2 = BeautifulSoup(html2, 'html.parser')   
-    time = soup2.select_one("time").text
-    parts = time.split(' ')
-    date_part = parts[2]  
-    time_part = parts[3] 
-    d = date_part.split('-')
-    years = d[0]
-    month = d[1]
-    day = d[2]
-    d1 = time_part.split(':')
-    hour = d1[0]
-    minute = d1[1]
-    data.append([name,link,years,month,day,hour,minute])
+    data = []
+    items=soup.select(".news_list li")
+    for item in items:
+        name = item.select_one(".text > strong").text.strip()
+        numbers = re.sub(r'[^\d]', '',item.select_one(".text > strong > a").attrs['href'])
+        # numbers = re.sub(r'[^\d]', '', link1)
+        #summary = item.select_one(".summary").text
+        link = f"https://www.etnews.com/{numbers}"
+        response = requests.get(link)
+        html2 = response.text
+        soup2 = BeautifulSoup(html2, 'html.parser')   
+        time = soup2.select_one("time").text
+        parts = time.split(' ')
+        date_part = parts[2]  
+        time_part = parts[3] 
+        d = date_part.split('-')
+        years = d[0]
+        month = d[1]
+        day = d[2]
+        d1 = time_part.split(':')
+        hour = d1[0]
+        minute = d1[1]
+        data.append([name,link,years,month,day,hour,minute])
 
 df2 = pd.DataFrame(data, columns=['기사명','링크','년','월','일','시','분'])
 df2['기사명'] = df2['기사명'].fillna('').str.replace(r'\\', '', regex=True)

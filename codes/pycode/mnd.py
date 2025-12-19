@@ -28,34 +28,36 @@ for i in range(3,8):
             minute =""
             data.append([name,category,link,years,month,day,hour,minute])
     else:
-        response = requests.get(f"https://www.mnd.go.kr/cop/kookbang/kookbangIlboList.do?handle=dema000{i}&siteId=mnd&id=mnd_020104000000")
-        html = response.text
-        soup = BeautifulSoup(html, 'html.parser')
-        items=soup.select(".post")
-        #name = soup.select_one(".wrap_title >div > a").text
-        if i ==3:
-            category = "국방부"
-        if i == 4:
-            category = "육군"
-        if i == 5:
-            category = "해군"
-        if i == 6:
-            category = "공군"
+        for p in range(1,3):
+            response = requests.get(f"https://www.mnd.go.kr/cop/kookbang/kookbangIlboList.do?siteId=mnd&pageIndex={p}&findType=&findWord=&categoryCode=dema000{i}&boardSeq=&startDate=&endDate=&id=mnd_020101000000")
+            html = response.text
+            soup = BeautifulSoup(html, 'html.parser')
+            items=soup.select(".post")
+            #name = soup.select_one(".wrap_title >div > a").text
+        
+            if i ==3:
+                category = "국방부"
+            if i == 4:
+                category = "육군"
+            if i == 5:
+                category = "해군"
+            if i == 6:
+                category = "공군"
 
-        for item in items:
-            name = item.select_one(".post > div").text.strip()
-            code_temp = item.select_one(".title > a").attrs['href']
-            pattern = r"'(.*?)'"
-            # re.findall()을 사용하여 패턴과 일치하는 모든 캡처 그룹(Group 1)의 내용을 리스트로 추출
-            code_list = re.findall(pattern, code_temp)
-            link = f'https://www.mnd.go.kr/cop/kookbang/kookbangIlboView.do?siteId=mnd&pageIndex=1&findType=&findWord=&categoryCode={code_list[0]}&boardSeq={code_list[1]}&startDate=&endDate=&id=mnd_020101000000'
-            date = item.select_one(".post_info > dl").select_one('dd').text.strip()
-            date1 = date.split('.')
-            years, month, day = date1
-            hour = ""
-            minute =""
-            
-            data.append([name,category,link,years,month,day,hour,minute])
+            for item in items:
+                name = item.select_one(".post > div").text.strip()
+                code_temp = item.select_one(".title > a").attrs['href']
+                pattern = r"'(.*?)'"
+                # re.findall()을 사용하여 패턴과 일치하는 모든 캡처 그룹(Group 1)의 내용을 리스트로 추출
+                code_list = re.findall(pattern, code_temp)
+                link = f'https://www.mnd.go.kr/cop/kookbang/kookbangIlboView.do?siteId=mnd&pageIndex=1&findType=&findWord=&categoryCode={code_list[0]}&boardSeq={code_list[1]}&startDate=&endDate=&id=mnd_020101000000'
+                date = item.select_one(".post_info > dl").select_one('dd').text.strip()
+                date1 = date.split('.')
+                years, month, day = date1
+                hour = ""
+                minute =""
+                
+                data.append([name,category,link,years,month,day,hour,minute])
 # .attrs['alt']
 #form_list > div > ul > li:nth-child(2) > div.thumb > a > img
 # 

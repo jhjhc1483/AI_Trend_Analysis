@@ -334,7 +334,7 @@
                 },
                 body: JSON.stringify({ ref: "main" })    
             }); 
-            if (res1.status === 204) {
+            if (res1.status === 200) {
                 alert("✅ 실행 성공! 최대 5분의 시간이 소요 됩니다.\n페이지를 새로고침 하세요.");
             } else if (res1.status === 401) {
                 alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
@@ -412,7 +412,7 @@
             },
             body: JSON.stringify({ ref: "main" })    
         });        
-        if (res2.status === 204) {
+        if (res2.status === 200) {
             alert("✅ 즐겨찾기에 있는 목록을 일일 동향을 텍스트로 만듭니다.\n\n약 30초 후 페이지를 새로고침 하고 대시보드에서 \n'텍스트추출'을 누르세요.");
         } else if (res2.status === 401) {
             alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");

@@ -8,7 +8,7 @@ import re
 # 셀 4: NIA 웹 크롤링 및 데이터 수집 로직
 # =============================================================
 
-# NIA 메인 페이지 요청
+# NIA 메인 페이지에 올라온 최신 5가지만 크롤링
 response = requests.get("https://nia.or.kr/site/nia_kor/main.do;jsessionid=6EACE24EADAB8A749EFCC1293267C284.33f82d3a14ca06361270")
 html = response.text
 soup = BeautifulSoup(html, 'html.parser')
