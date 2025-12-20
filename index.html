@@ -326,7 +326,14 @@
             alert("토큰이 입력되지 않았습니다.");
             return;
         }
+        const message = "⚠️기사업데이트를 진행하시겠습니까?⚠️\n\n" +
+                    "✅기사는 매일 정각과 30분에 자동으로 업데이트 됩니다.\n" +
+                    "✅기사업데이트 시 최대 5분 이상의 시간이 소요 됩니다.";
 
+        if (!confirm(message)) {
+            // '아니오(취소)'를 클릭한 경우 함수 종료
+            return;
+        }
         const WORKFLOW_ID = "main.yml";
         const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`;
         try {
