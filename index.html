@@ -131,7 +131,8 @@
             padding: 10px 20px;
             font-size: 14px;
             border-radius: 8px;
-            background-color: #e74c3c;
+            background: #b81c0b;
+            color: #fff;
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -415,7 +416,7 @@
                     <div class="dashboard-actions">
                         <button id="runActionBtn2">텍스트만들기</button>
                         <button id="loadFileBtn">텍스트추출</button>
-                        <button id="deleteCodesBtn">데이터 초기화</button>
+                        <button id="deleteCodesBtn">🗑️Reset</button>
                     </div>
                 </div>
                 <p id="status"></p>
@@ -1244,7 +1245,7 @@
                 }
             }
 
-            alert(`✅ ${targetFiles.length}개 파일 삭제 완료\n페이지를 새로고침하세요.`);
+            alert(`✅ 데이터 초기화 완료\n잠시후 페이지를 새로고침하세요.`);
 
         } catch (error) {
             console.error(error);
