@@ -493,6 +493,16 @@
         &copy; Maj.CJH. All rights reserved.
     </div>
     <script>
+
+        function loadJson(path) {
+            return fetch(`${path}?t=${Date.now()}`, {
+                cache: "no-store"
+            }).then(res => {
+                if (!res.ok) throw new Error(`JSON 로드 실패: ${path}`);
+                return res.json();
+            });
+        }
+        
         const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.\n코드를 모르면 'ESC'키를 누르세요.");    
         const OWNER = "jhjhc1483";
         const REPO = "AI_Trend_Analysis";
@@ -1248,10 +1258,6 @@
             alert("❌ 삭제 중 오류 발생");
         }
     });
-    function loadJson(file) {
-    const url = `codes/${file}?t=${Date.now()}`;
-    return fetch(url, { cache: "no-store" }).then(res => res.json());
-    }
     </script>
 </body>
 </html>
