@@ -493,16 +493,6 @@
         &copy; Maj.CJH. All rights reserved.
     </div>
     <script>
-
-        function loadJson(path) {
-            return fetch(`${path}?t=${Date.now()}`, {
-                cache: "no-store"
-            }).then(res => {
-                if (!res.ok) throw new Error(`JSON 로드 실패: ${path}`);
-                return res.json();
-            });
-        }
-        
         const token = "github_pat_11B3KXJKY0SHfTVuXaRCJS_iXJF2Zj23h2xFEh8N9EKAejuLUYrJFdkNzWFYmhhdZaJDEN2FKRUAue" + prompt("⚠️코드를 입력하세요.\n입력한 코드는 저장되지 않습니다.\n코드를 모르면 'ESC'키를 누르세요.");    
         const OWNER = "jhjhc1483";
         const REPO = "AI_Trend_Analysis";
@@ -630,6 +620,7 @@
         // -----------------------------------------------------
         // 1. 전역 변수 설정 및 데이터 로드 파일 정의
         // -----------------------------------------------------
+        // -----------------------------------------------------
         let articleData = []; // 기사 데이터 (AI Times, ETNEWS, AINEWS, MND, kookbang, DAPA)
         let publicationData = []; // 간행물 데이터 (NIA, IITP, STEPI, NIPA, KISDI, KISTI)
         let allDataLoaded;
@@ -637,23 +628,25 @@
         let currentView = 'HOME'; // 현재 활성화된 뷰
 
         // 즐겨찾기 상태 저장 변수
-        // 변경: favoriteArticles는 Map으로 변경 (Link -> Category)
         let favoriteArticles = new Map();
-        let favoritePublications = new Map(); // 간행물은 카테고리 없음, Set 유지
-        
+        let favoritePublications = new Map(); 
+
+        // 캐시 방지를 위한 타임스탬프 생성
+        const cacheBuster = `?t=${new Date().getTime()}`;
+
         const FILES_TO_LOAD = [
-            { url: 'codes/aitimes.json', site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
-            { url: 'codes/etnews.json', site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
-            { url: 'codes/AInews.json', site: 'AINEWS', isArticle: true, displayName: '인공지능신문' },
-            { url: 'codes/mnd.json', site: 'MND', isArticle: true, displayName: '국방부' },
-            { url: 'codes/kookbang.json', site: 'kookbang', isArticle: true, displayName: '국방일보' },
-            { url: 'codes/dapa.json', site: 'DAPA', isArticle: true, displayName: '방사청' },
-            { url: 'codes/iitp.json', site: 'IITP', isArticle: false, displayName: 'IITP' },
-            { url: 'codes/nia.json', site: 'NIA', isArticle: false, displayName: 'NIA' },
-            { url: 'codes/STEPI.json', site: 'STEPI', isArticle: false, displayName: 'STEPI' },
-            { url: 'codes/NIPA.json', site: 'NIPA', isArticle: false, displayName: 'NIPA' },
-            { url: 'codes/KISDI.json', site: 'KISDI', isArticle: false, displayName: 'KISDI' },
-            { url: 'codes/KISTI.json', site: 'KISTI', isArticle: false, displayName: 'KISTI' }
+            { url: 'codes/aitimes.json' + cacheBuster, site: 'AITIMES', isArticle: true, displayName: 'AI Times' },
+            { url: 'codes/etnews.json' + cacheBuster, site: 'ETNEWS', isArticle: true, displayName: '전자신문' },
+            { url: 'codes/AInews.json' + cacheBuster, site: 'AINEWS', isArticle: true, displayName: '인공지능신문' },
+            { url: 'codes/mnd.json' + cacheBuster, site: 'MND', isArticle: true, displayName: '국방부' },
+            { url: 'codes/kookbang.json' + cacheBuster, site: 'kookbang', isArticle: true, displayName: '국방일보' },
+            { url: 'codes/dapa.json' + cacheBuster, site: 'DAPA', isArticle: true, displayName: '방사청' },
+            { url: 'codes/iitp.json' + cacheBuster, site: 'IITP', isArticle: false, displayName: 'IITP' },
+            { url: 'codes/nia.json' + cacheBuster, site: 'NIA', isArticle: false, displayName: 'NIA' },
+            { url: 'codes/STEPI.json' + cacheBuster, site: 'STEPI', isArticle: false, displayName: 'STEPI' },
+            { url: 'codes/NIPA.json' + cacheBuster, site: 'NIPA', isArticle: false, displayName: 'NIPA' },
+            { url: 'codes/KISDI.json' + cacheBuster, site: 'KISDI', isArticle: false, displayName: 'KISDI' },
+            { url: 'codes/KISTI.json' + cacheBuster, site: 'KISTI', isArticle: false, displayName: 'KISTI' }
         ];
 
         // -----------------------------------------------------
