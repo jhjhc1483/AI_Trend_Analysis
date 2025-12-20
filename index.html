@@ -156,7 +156,131 @@
         .cat-pub { background-color: #fb9de8;color: #333; }
         /* 기본값(지정 안됨 등) */
         .cat-default { background-color: #758888; }
-        
+    /* ================================================= */
+    /* 📱 모바일 반응형 (768px 이하) */
+    /* ================================================= */
+    @media (max-width: 768px) {
+
+        /* 헤더 */
+        #header-fixed {
+            font-size: 1.2em;
+            padding: 10px 0;
+        }
+
+        /* 전체 레이아웃 세로 스택 */
+        .container {
+            flex-direction: column;
+            margin-top: 60px;
+            min-height: auto;
+        }
+
+        /* 사이드바 → 상단 메뉴로 */
+        .sidebar {
+            width: 100%;
+            height: auto;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 1.2em;
+            padding-bottom: 10px;
+        }
+
+        /* 메뉴 버튼 정렬 */
+        .menu-group {
+            padding: 0 10px;
+        }
+
+        .tab-button {
+            padding: 10px;
+            font-size: 0.95em;
+        }
+
+        /* 메인 콘텐츠 */
+        .grid {
+            display: block;
+        }
+
+        .card {
+            width: 100%;
+            padding: 15px;
+        }
+
+        /* 컨트롤 영역 */
+        .controls-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-controls input,
+        .sort-controls select {
+            width: 100%;
+        }
+
+        /* 기사 리스트 */
+        .article-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .article-date {
+            align-self: flex-end;
+            font-size: 0.9em;
+        }
+
+        .article-title {
+            font-size: 1em;
+        }
+
+        /* 대시보드 카드 */
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.8em;
+        }
+
+        /* 팝업 */
+        #popup {
+            width: 90%;
+            height: 70%;
+        }
+            .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+        }
+
+        .dashboard-actions {
+            width: 100%;
+        }
+
+        .dashboard-actions button {
+            width: 100%;
+        }
+    }
+    .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* 모바일 줄바꿈 */
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 1.4em;
+    color: #2c3e50;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 10px;
+}
     </style>
 </head>
 <body>
@@ -177,6 +301,7 @@
     </div>
     <div class="container" >
         <div class="sidebar">
+            
             <div class="logo">AI 동향분석</br>
                 <div class="rights">
                     <button  id="runActionBtn" style="
@@ -239,9 +364,14 @@
             <h1 id="main-content-title">홈 (대시보드)</h1>
 
             <div id="dashboard-view">
-                <h2><span style="margin-right: 680px;">📊 요약 정보</span> <button id="runActionBtn2">
-                텍스트만들기 </button> <button id="loadFileBtn">텍스트추출</button>
-                    <p id="status"></p></h2>
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">📊 요약 정보</h2>
+                    <div class="dashboard-actions">
+                        <button id="runActionBtn2">텍스트만들기</button>
+                        <button id="loadFileBtn">텍스트추출</button>
+                    </div>
+                </div>
+                <p id="status"></p>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>총 기사 수</h3>
