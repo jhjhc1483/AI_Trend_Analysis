@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
@@ -6,25 +8,39 @@ import os
 import json
 import time
 
-# 1. 브라우저 헤더 설정 (User-Agent)
+# 1. 재시도 로직을 포함한 세션 설정
+def get_safe_session():
+    session = requests.Session()
+    # 연결 실패나 500번대 에러 발생 시 최대 3번까지 재시도
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1, # 실패 시 1초, 2초, 4초 간격으로 대기 후 시도
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+session = get_safe_session()
+
+# 2. 브라우저 헤더 설정
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7"
 }
 
-# 타임아웃 설정 (초 단위)
-TIMEOUT_SEC = 15
-
+# 타임아웃을 20초로 조금 더 늘림
+TIMEOUT_SEC = 20
 data = []
 
 for i in range(3, 8):    
     if i > 6:
         url = "https://www.mnd.go.kr/user/newsInUserRecord.action?siteId=mnd&handle=I_669&id=mnd_020500000000"
         try:
-            # timeout과 headers 적용
-            response = requests.get(url, headers=headers, timeout=TIMEOUT_SEC)
-            response.raise_for_status() # 200 OK가 아니면 에러 발생
+            # session.get 사용
+            response = session.get(url, headers=headers, timeout=TIMEOUT_SEC)
+            response.raise_for_status()
             
             html = response.text
             soup = BeautifulSoup(html, 'html.parser')
@@ -37,12 +53,14 @@ for i in range(3, 8):
                 pattern = r"_(.*?)&"
                 code_list = re.findall(pattern, code_temp)
                 
-                # 안전한 인덱싱 확인
                 if len(code_list) > 1:
                     link = f'https://www.mnd.go.kr/user/newsInUserRecord.action?siteId=mnd&page=1&newsId=I_669&newsSeq=I_{code_list[1]}&command=view&id=mnd_020500000000&findStartDate=&findEndDate=&findType=title&findWord=&findOrganSeq='
                     date = item.select_one(".post_info > dl").select_one('dd').text.strip()
                     years, month, day = date.split('-')
                     data.append([name, category, link, years, month, day, "", ""])
+            
+            # 페이지 간 간격
+            time.sleep(1)
         except Exception as e:
             print(f"보도자료 크롤링 중 오류: {e}")
 
@@ -50,7 +68,8 @@ for i in range(3, 8):
         for p in range(1, 3):
             url = f"https://www.mnd.go.kr/cop/kookbang/kookbangIlboList.do?siteId=mnd&pageIndex={p}&findType=&findWord=&categoryCode=dema000{i}&boardSeq=&startDate=&endDate=&id=mnd_020101000000"
             try:
-                response = requests.get(url, headers=headers, timeout=TIMEOUT_SEC)
+                # session.get 사용
+                response = session.get(url, headers=headers, timeout=TIMEOUT_SEC)
                 response.raise_for_status()
                 
                 html = response.text
@@ -72,20 +91,17 @@ for i in range(3, 8):
                         years, month, day = date.split('.')
                         data.append([name, category, link, years, month, day, "", ""])
                 
-                # 서버 부하 방지를 위한 짧은 휴식
-                time.sleep(0.5)
+                # ⭐ 중요: 요청 간 휴식 시간을 2초로 늘려 서버 차단 방지
+                time.sleep(2)
             except Exception as e:
-                print(f"국방일보({category}) 크롤링 중 오류: {e}")
+                print(f"국방일보({category}, {p}페이지) 크롤링 중 오류: {e}")
 
-# 데이터프레임 생성
+# --- 이후 JSON 저장 로직 (동일) ---
 df5 = pd.DataFrame(data, columns=['기사명','분류','링크','년','월','일','시','분'])
-
-# 폴더 생성 (없을 경우)
 os.makedirs('codes', exist_ok=True)
 full_path = 'codes/mnd.json'
 new_data = df5.to_dict('records')
 
-# ----------------- JSON 저장 및 중복 제거 -----------------
 existing_data = []
 if os.path.exists(full_path):
     try:
