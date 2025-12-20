@@ -405,6 +405,17 @@
                     <div class="dashboard-actions">
                         <button id="runActionBtn2">텍스트만들기</button>
                         <button id="loadFileBtn">텍스트추출</button>
+                        <button id="deleteCodesBtn" style="
+                            padding: 4px 6px;
+                            background-color: #e74c3c;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            margin-top: 6px;">
+                            🗑 codes 초기화
+                        </button>
                     </div>
                 </div>
                 <p id="status"></p>
@@ -1166,6 +1177,81 @@
             container.classList.toggle('sidebar-collapsed');
         }
     });
+    document.getElementById('deleteCodesBtn').addEventListener('click', async function () {
+
+        if (!token) {
+            alert("토큰이 입력되지 않았습니다.");
+            return;
+        }
+
+        const confirmMsg =
+            "⚠️ 경고 ⚠️\n\n" +
+            "codes 폴더 안의 모든 JSON / TXT 파일을 삭제합니다.\n" +
+            "이 작업은 되돌릴 수 없습니다.\n\n" +
+            "정말 삭제하시겠습니까?";
+
+        if (!confirm(confirmMsg)) return;
+
+        const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents/codes`;
+
+        try {
+            // 1. codes 폴더 파일 목록 조회
+            const res = await fetch(API_BASE, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                alert("❌ codes 폴더를 불러오지 못했습니다.");
+                return;
+            }
+
+            const files = await res.json();
+
+            // 2. json / txt 파일만 필터
+            const targetFiles = files.filter(file =>
+                file.type === "file" &&
+                (file.name.endsWith(".json") || file.name.endsWith(".txt"))
+            );
+
+            if (targetFiles.length === 0) {
+                alert("삭제할 json/txt 파일이 없습니다.");
+                return;
+            }
+
+            // 3. 파일 개별 삭제
+            for (const file of targetFiles) {
+                const deleteRes = await fetch(file.url, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: `delete ${file.path}`,
+                        sha: file.sha,
+                        branch: BRANCH
+                    })
+                });
+
+                if (!deleteRes.ok) {
+                    const err = await deleteRes.json();
+                    console.error(`❌ 삭제 실패: ${file.name}`, err.message);
+                } else {
+                    console.log(`🗑 삭제 완료: ${file.name}`);
+                }
+            }
+
+            alert(`✅ ${targetFiles.length}개 파일 삭제 완료\n페이지를 새로고침하세요.`);
+
+        } catch (error) {
+            console.error(error);
+            alert("❌ 삭제 중 오류 발생");
+        }
+    });
+    function loadJson(file) {
+    const url = `codes/${file}?t=${Date.now()}`;
+    return fetch(url, { cache: "no-store" }).then(res => res.json());
+    }
     </script>
 </body>
 </html>
