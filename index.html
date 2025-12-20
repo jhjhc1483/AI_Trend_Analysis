@@ -261,19 +261,11 @@
         .dashboard-actions button {
             width: 100%;
         }
-            #menuToggle {
-            display: block;
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1100;
-        }
-
         .sidebar {
-            display: none;
-        }
-
-        .sidebar.active {
+        display: none;
+        width: 100%;
+         }
+        .container.sidebar-open .sidebar {
             display: block;
         }
     }
@@ -285,7 +277,6 @@
     gap: 10px;
     margin-bottom: 10px;
 }
-
 .dashboard-title {
     margin: 0;
     font-size: 1.4em;
@@ -295,6 +286,35 @@
 .dashboard-actions {
     display: flex;
     gap: 10px;
+}
+#sidebarToggle {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.6em;
+    cursor: pointer;
+}
+/* =============================== */
+/* 사이드바 접힘 상태 */
+/* =============================== */
+.container.sidebar-collapsed .sidebar {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.container.sidebar-collapsed .content,
+.container.sidebar-collapsed .grid {
+    width: 100%;
+}
+
+/* 부드러운 애니메이션 */
+.sidebar {
+    transition: width 0.3s ease, padding 0.3s ease;
 }
     </style>
 </head>
@@ -312,13 +332,13 @@
 <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.5); z-index:999;"></div>
     <div id="header-fixed">
+        <button id="sidebarToggle" aria-label="메뉴 열기">☰</button>
         인공지능 일일동향 분석
     </div>
     <div class="container" >
         <div class="sidebar">
             <div class="logo">AI 동향분석</br>
                 <div class="rights">
-                    <button id="menuToggle" style="display:none;">☰</button>
                     <button  id="runActionBtn" style="
                     padding: 2px 2px;
                     background-color: #2ea44f; 
@@ -1128,8 +1148,21 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
-        document.getElementById('menuToggle')?.addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('active');
+    // ===============================
+    // 사이드바 토글
+    // ===============================
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const container = document.querySelector('.container');
+
+    sidebarToggle.addEventListener('click', () => {
+        // 모바일
+        if (window.innerWidth <= 768) {
+            container.classList.toggle('sidebar-open');
+        } 
+        // 데스크톱
+        else {
+            container.classList.toggle('sidebar-collapsed');
+        }
     });
     </script>
 </body>
