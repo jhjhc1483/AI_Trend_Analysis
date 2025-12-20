@@ -127,7 +127,17 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        #loadFileBtn:hover,#runActionBtn2:hover {
+        #deleteCodesBtn{
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+            background-color: #e74c3c;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        #loadFileBtn:hover,#runActionBtn2:hover, #deleteCodesBtn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.2);
         }
@@ -405,17 +415,7 @@
                     <div class="dashboard-actions">
                         <button id="runActionBtn2">텍스트만들기</button>
                         <button id="loadFileBtn">텍스트추출</button>
-                        <button id="deleteCodesBtn" style="
-                            padding: 4px 6px;
-                            background-color: #e74c3c;
-                            color: white;
-                            border: none;
-                            border-radius: 6px;
-                            font-weight: bold;
-                            cursor: pointer;
-                            margin-top: 6px;">
-                            🗑 codes 초기화
-                        </button>
+                        <button id="deleteCodesBtn">데이터 초기화</button>
                     </div>
                 </div>
                 <p id="status"></p>
@@ -1189,7 +1189,7 @@
 
         const confirmMsg =
             "⚠️ 경고 ⚠️\n\n" +
-            "codes 폴더 안의 모든 JSON / TXT 파일을 삭제합니다.\n" +
+            "모든 데이터를 삭제합니다.\n" +
             "이 작업은 되돌릴 수 없습니다.\n\n" +
             "정말 삭제하시겠습니까?";
 
@@ -1217,7 +1217,7 @@
             );
 
             if (targetFiles.length === 0) {
-                alert("삭제할 json/txt 파일이 없습니다.");
+                alert("삭제할 데이터가 없습니다.");
                 return;
             }
 
