@@ -261,6 +261,21 @@
         .dashboard-actions button {
             width: 100%;
         }
+            #menuToggle {
+            display: block;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+        }
+
+        .sidebar {
+            display: none;
+        }
+
+        .sidebar.active {
+            display: block;
+        }
     }
     .dashboard-header {
     display: flex;
@@ -301,9 +316,9 @@
     </div>
     <div class="container" >
         <div class="sidebar">
-            
             <div class="logo">AI 동향분석</br>
                 <div class="rights">
+                    <button id="menuToggle" style="display:none;">☰</button>
                     <button  id="runActionBtn" style="
                     padding: 2px 2px;
                     background-color: #2ea44f; 
@@ -1113,6 +1128,9 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+        document.getElementById('menuToggle')?.addEventListener('click', () => {
+        document.querySelector('.sidebar').classList.toggle('active');
+    });
     </script>
 </body>
 </html>
