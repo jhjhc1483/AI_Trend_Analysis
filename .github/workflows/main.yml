@@ -65,6 +65,7 @@ jobs:
           python codes/pycode/iitp.py
           python codes/pycode/AInews.py
           python codes/pycode/kookbang.py
+          python codes/pycode/msit.py
 
       # =============================================================
       # 💡 최적화: 모든 JSON 파일을 한 번에 커밋 및 푸시

@@ -388,6 +388,7 @@
                     <a href="#" class="tab-button" data-source="MND">국방부</a>
                     <a href="#" class="tab-button" data-source="kookbang">국방일보</a>
                     <a href="#" class="tab-button" data-source="DAPA">방사청</a>
+                    <a href="#" class="tab-button" data-source="MSIT">과기정통부</a>
                 </div>
                 <div class="menu-group">
                     <div class="menu-title">간행물 (PUBLICATION)</div>
@@ -402,6 +403,8 @@
                     <a href="#" class="tab-button" data-source="NIPA">NIPA(정보통신산업진흥원)</a>
                     <a href="#" class="tab-button" data-source="KISDI">KISDI(정보통신정책연구원)</a>
                     <a href="#" class="tab-button" data-source="KISTI">KISTI(한국과학기술정보연구원)</a>
+                    <a href="#" class="tab-button" data-source="KISA">KISA(한국인터넷진흥원)</a>
+                    <a href="#" class="tab-button" data-source="TTA">TTA(한국정보통신기술협회)</a>
                 </div>
             </nav> 
         </div>
@@ -622,8 +625,8 @@
         // 1. 전역 변수 설정 및 데이터 로드 파일 정의
         // -----------------------------------------------------
         // -----------------------------------------------------
-        let articleData = []; // 기사 데이터 (AI Times, ETNEWS, AINEWS, MND, kookbang, DAPA)
-        let publicationData = []; // 간행물 데이터 (NIA, IITP, STEPI, NIPA, KISDI, KISTI)
+        let articleData = []; // 기사 데이터 (AI Times, ETNEWS, AINEWS, MND, kookbang, DAPA, MSIT)
+        let publicationData = []; // 간행물 데이터 (NIA, IITP, STEPI, NIPA, KISDI, KISTI, KISA, TTA)
         let allDataLoaded;
         let debounceTimeout;
         let currentView = 'HOME'; // 현재 활성화된 뷰
@@ -642,12 +645,15 @@
             { url: 'codes/mnd.json' + cacheBuster, site: 'MND', isArticle: true, displayName: '국방부' },
             { url: 'codes/kookbang.json' + cacheBuster, site: 'kookbang', isArticle: true, displayName: '국방일보' },
             { url: 'codes/dapa.json' + cacheBuster, site: 'DAPA', isArticle: true, displayName: '방사청' },
+            { url: 'codes/msit.json' + cacheBuster, site: 'MSIT', isArticle: true, displayName: '과기정통부' },
             { url: 'codes/iitp.json' + cacheBuster, site: 'IITP', isArticle: false, displayName: 'IITP' },
             { url: 'codes/nia.json' + cacheBuster, site: 'NIA', isArticle: false, displayName: 'NIA' },
             { url: 'codes/STEPI.json' + cacheBuster, site: 'STEPI', isArticle: false, displayName: 'STEPI' },
             { url: 'codes/NIPA.json' + cacheBuster, site: 'NIPA', isArticle: false, displayName: 'NIPA' },
             { url: 'codes/KISDI.json' + cacheBuster, site: 'KISDI', isArticle: false, displayName: 'KISDI' },
-            { url: 'codes/KISTI.json' + cacheBuster, site: 'KISTI', isArticle: false, displayName: 'KISTI' }
+            { url: 'codes/KISTI.json' + cacheBuster, site: 'KISTI', isArticle: false, displayName: 'KISTI' },
+            { url: 'codes/KISA.json' + cacheBuster, site: 'KISA', isArticle: false, displayName: 'KISA' },
+            { url: 'codes/tta.json' + cacheBuster, site: 'TTA', isArticle: false, displayName: 'TTA' }
         ];
 
         // -----------------------------------------------------
@@ -779,8 +785,8 @@
             }
 
             const isHome = sourceName === 'HOME';
-            const isArticleView = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'AINEWS', 'MND', 'kookbang', 'DAPA'].includes(sourceName);
-            const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA', 'KISDI', 'KISTI'].includes(sourceName);
+            const isArticleView = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'AINEWS', 'MND', 'kookbang', 'DAPA', 'MSIT'].includes(sourceName);
+            const isPublicationView = sourceName.includes('PUBLICATION') || ['NIA', 'IITP','STEPI', 'NIPA', 'KISDI', 'KISTI','KISA','TTA'].includes(sourceName);
 
             document.getElementById('dashboard-view').style.display = isHome ? 'block' : 'none';
             document.getElementById('list-view').style.display = isHome ? 'none' : 'block';
@@ -839,7 +845,7 @@
             let data = [];
             let sortBy, searchTerm, dataLabel;
 
-            const isArticle = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'AINEWS', 'MND', 'kookbang', 'DAPA'].includes(sourceName);
+            const isArticle = sourceName.includes('ARTICLE') || ['AITIMES', 'ETNEWS', 'AINEWS', 'MND', 'kookbang', 'DAPA', 'MSIT'].includes(sourceName);
             const isAll = sourceName.includes('_ALL');
             const isFav = sourceName.includes('_FAV');
             
