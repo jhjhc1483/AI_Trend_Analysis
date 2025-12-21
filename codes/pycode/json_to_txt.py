@@ -73,7 +73,7 @@ def generate_report_text(categorized):
             lines.append("")
 
     lines.append("")
-    lines.append("by. Department of AI.dev")
+    lines.append("by. AI Development Department")
     return "\n".join(lines).strip()
 
 
