@@ -66,6 +66,8 @@ jobs:
           python codes/pycode/AInews.py
           python codes/pycode/kookbang.py
           python codes/pycode/msit.py
+          python codes/pycode/KISA.py
+          python codes/pycode/tta.py
 
       # =============================================================
       # 💡 최적화: 모든 JSON 파일을 한 번에 커밋 및 푸시
