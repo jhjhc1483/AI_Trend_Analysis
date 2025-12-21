@@ -15,7 +15,7 @@ FILES = [
 
 OUTPUT_FILE = PROJECT_ROOT / "codes/data.txt"
 
-FIXED_CATEGORIES = ["국방", "육군", "민간", "기타"]
+FIXED_CATEGORIES = ["국방", "육군", "민간", "기관", "기타"]
 LAST_CATEGORY = "간행물"
 
 
@@ -47,7 +47,7 @@ def generate_report_text(categorized):
         if category in categorized:
             lines.append(f"[{category}]")
             for item in categorized[category]:
-                lines.append(item["title"])
+                lines.append(f"▲ {item['title']}")
                 lines.append(item["link"])
                 lines.append("")
 
@@ -60,7 +60,7 @@ def generate_report_text(categorized):
     for category in extra_categories:
         lines.append(f"[{category}]")
         for item in categorized[category]:
-            lines.append(item["title"])
+            lines.append(f"▲ {item['title']}")
             lines.append(item["link"])
             lines.append("")
 
@@ -68,10 +68,12 @@ def generate_report_text(categorized):
     if LAST_CATEGORY in categorized:
         lines.append(f"[{LAST_CATEGORY}]")
         for item in categorized[LAST_CATEGORY]:
-            lines.append(item["title"])
+            lines.append(f"▲ {item['title']}")
             lines.append(item["link"])
             lines.append("")
 
+    lines.append("")
+    lines.append("by. Department of AI.dev")
     return "\n".join(lines).strip()
 
 
