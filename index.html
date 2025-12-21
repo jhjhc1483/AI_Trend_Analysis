@@ -261,41 +261,45 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;            /* 모바일 대응: 너비를 90%로 */
-            max-width: 600px;     /* PC 대응: 최대 너비 제한 */
-            max-height: 80vh;     /* 화면 높이의 80%만 차지하도록 */
+            
+            /* 1. 너비 방어: 화면 양옆에 최소 20px씩 여유를 둡니다 */
+            width: calc(100% - 40px); 
+            max-width: 500px;
+            
+            /* 2. 높이 방어: 화면 높이의 85%를 절대 넘지 않게 합니다 */
+            max-height: 85vh; 
+            
             background: #fff;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 15px;
             z-index: 1000;
-            display: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            overflow: hidden;      /* 팝업 전체는 스크롤 방지 */
-            display: flex;         /* 레이아웃 제어를 위해 flex 사용 */
-            flex-direction: column;
-        }
-        /* 텍스트가 표시되는 영역 */
-        #popupContent {
-            white-space: pre-wrap;  /* 줄바꿈 유지 및 너비 넘치면 자동 줄바꿈 */
-            word-break: break-all; /* 긴 URL이 있어도 옆으로 안 터지게 함 */
-            overflow-y: auto;      /* 내용이 많으면 내부에서만 스크롤 */
-            font-size: 14px;       /* 가독성 좋은 폰트 크기 */
-            line-height: 1.6;
-            background: #f9f9f9;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            flex: 1;               /* 남은 높이를 다 차지하게 함 */
-            -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+            
+            /* 3. 내부 레이아웃: flex를 써야 내부 스크롤이 정확히 작동합니다 */
+            display: none; 
+            flex-direction: column; 
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 함 */
         }
         
-        /* 버튼 모바일 최적화 */
+        #popupContent {
+            flex: 1;                /* 남은 공간을 다 차지함 */
+            overflow-y: auto;       /* 내용이 많으면 팝업 내부 스크롤 */
+            margin: 15px 0;
+            padding: 12px;
+            background: #f4f4f4;
+            font-size: 15px;        /* 모바일에서 읽기 좋은 크기 */
+            line-height: 1.6;
+            white-space: pre-wrap;  /* 줄바꿈 유지 */
+            word-break: break-all;  /* 긴 URL 잘림 방지 */
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch; /* 아이폰 스크롤 부드럽게 */
+        }
+        
+        /* 버튼 영역이 화면 하단에 딱 붙어 있게 함 */
         .popup-buttons {
             display: flex;
             gap: 10px;
+            flex-shrink: 0; /* 버튼 영역은 높이가 줄어들지 않음 */
         }
-        
         .popup-buttons button {
             flex: 1;               /* 버튼을 양옆으로 꽉 채움 */
             padding: 12px;         /* 터치하기 편하게 크게 만듦 */
@@ -624,6 +628,7 @@
             popup.style.display = 'flex'; // block 대신 flex 추천
             overlay.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none'; // 터치 간섭 방지
             console.log(text);
         } catch (error) {
             console.error(error);
@@ -635,7 +640,8 @@
     document.getElementById('closeBtn').addEventListener('click', () => {
         popup.style.display = 'none';
         overlay.style.display = 'none';
-        document.body.style.overflow = 'auto'; // 스크롤 복구
+        document.body.style.overflow = 'auto';
+        document.body.style.touchAction = 'auto';
     });
 
     // 복사 버튼
