@@ -8,6 +8,7 @@ import re
 import pandas as pd
 import os
 import json
+from datetime import datetime
 
 # 1. 옵션 설정
 chrome_options = Options()
@@ -69,25 +70,30 @@ try:
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date_text = date_el.text.strip()
                 
-                # [디버깅] 실제 날짜 데이터가 어떻게 생겼는지 확인 (필요시 주석 해제)
-                # print(f"원본 날짜 텍스트: '{date_text}'")
-
-                # [수정됨] .split(". ") 대신 정규표현식으로 숫자만 모두 추출
-                date_parts = re.findall(r'\d+', date_text)
-
-                # 숫자가 3개 이상(연, 월, 일) 추출되었을 때만 처리
-                if len(date_parts) >= 3:
-                    years = date_parts[0]
-                    month = date_parts[1]
-                    day = date_parts[2]
-                else:
-                    print(f"날짜 형식 인식 실패: {date_text}")
-                    continue
+                # [수정됨] 영문/국문 날짜 통합 처리 로직
+                years, month, day = "", "", ""
+                
+                try:
+                    # 1. 영문 날짜 시도 (예: Dec 26, 2025)
+                    # %b: 영문 월(Dec), %d: 일(26), %Y: 년도(2025)
+                    dt = datetime.strptime(date_text, "%b %d, %Y")
+                    years = str(dt.year)
+                    month = f"{dt.month:02d}" # 1월 -> 01 로 변환
+                    day = f"{dt.day:02d}"
+                except ValueError:
+                    # 2. 영문 실패 시 숫자/국문 날짜 시도 (예: 2025.12.26 또는 2025-12-26)
+                    date_parts = re.findall(r'\d+', date_text)
+                    if len(date_parts) >= 3:
+                        years = date_parts[0]
+                        month = date_parts[1]
+                        day = date_parts[2]
+                    else:
+                        print(f"날짜 형식 인식 불가: {date_text}")
+                        continue
 
                 link_element = item.find_element(By.TAG_NAME, "a")
                 onclick_text = link_element.get_attribute("onclick")
                 
-                # onclick에서 숫자(게시글 ID) 추출
                 code_match = re.search(r'\d+', onclick_text)
                 if code_match:
                     code = code_match.group()
@@ -99,8 +105,7 @@ try:
                     print(f"링크 코드 추출 실패: {name}")
 
             except Exception as e:
-                # 에러 발생 시 어떤 데이터에서 났는지 확인하기 위해 변수들 출력
-                print(f"항목 파싱 중 에러 발생: {e}")
+                print(f"항목 파싱 중 에러: {e}")
                 continue
 except Exception as e:
     print(f"전체 프로세스 에러: {e}")
