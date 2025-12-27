@@ -61,31 +61,47 @@ try:
             print(driver.page_source[:500])
             continue
 
-        for item in items:
+for item in items:
             try:
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
-                # print(f"추출된 기사: {name}") # 로그 너무 길어짐 방지
                 
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
-                date = date_el.text.strip()
-                date_temp = date.split(". ") 
-                years = date_temp[0]
-                month =  date_temp[1]
-                day = date_temp[2]
+                date_text = date_el.text.strip()
+                
+                # [디버깅] 실제 날짜 데이터가 어떻게 생겼는지 확인 (필요시 주석 해제)
+                # print(f"원본 날짜 텍스트: '{date_text}'")
+
+                # [수정됨] .split(". ") 대신 정규표현식으로 숫자만 모두 추출
+                date_parts = re.findall(r'\d+', date_text)
+
+                # 숫자가 3개 이상(연, 월, 일) 추출되었을 때만 처리
+                if len(date_parts) >= 3:
+                    years = date_parts[0]
+                    month = date_parts[1]
+                    day = date_parts[2]
+                else:
+                    print(f"날짜 형식 인식 실패: {date_text}")
+                    continue
 
                 link_element = item.find_element(By.TAG_NAME, "a")
                 onclick_text = link_element.get_attribute("onclick")
                 
-                code = re.search(r'\d+', onclick_text).group()
-                link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
-                
-                if name and years and month and day and link:
+                # onclick에서 숫자(게시글 ID) 추출
+                code_match = re.search(r'\d+', onclick_text)
+                if code_match:
+                    code = code_match.group()
+                    link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
+                    
                     data.append([name, link, years, month, day])
-            except Exception as e:
-                print(f"항목 파싱 중 에러: {e}")
-                continue
+                    print(f"추출 성공: {name} ({years}-{month}-{day})")
+                else:
+                    print(f"링크 코드 추출 실패: {name}")
 
+            except Exception as e:
+                # 에러 발생 시 어떤 데이터에서 났는지 확인하기 위해 변수들 출력
+                print(f"항목 파싱 중 에러 발생: {e}")
+                continue
 except Exception as e:
     print(f"전체 프로세스 에러: {e}")
 
