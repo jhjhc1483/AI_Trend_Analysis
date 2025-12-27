@@ -61,7 +61,7 @@ try:
             print(driver.page_source[:500])
             continue
 
-for item in items:
+        for item in items:
             try:
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
