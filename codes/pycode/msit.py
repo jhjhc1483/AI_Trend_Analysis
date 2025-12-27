@@ -8,11 +8,19 @@ import re
 import pandas as pd
 import os
 import json
-# 1. 헤드리스 옵션 설정
+
+# 1. 옵션 설정 (봇 탐지 우회 및 화면 크기 설정)
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # 화면 안 띄우기
+chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
+# [중요] 화면 크기 설정 (반응형 웹 대응)
+chrome_options.add_argument("--window-size=1920,1080") 
+# [중요] 봇 탐지 우회 (일반 브라우저인 척 위장)
+chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+# [중요] 일부 보안 옵션 무시
+chrome_options.add_argument('--ignore-certificate-errors')
+chrome_options.add_argument('--allow-running-insecure-content')
 
 # 2. 드라이버 실행
 service = Service(ChromeDriverManager().install())
@@ -23,22 +31,28 @@ data = []
 try:
     for i in range(1, 4):
         url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
+        print(f"접속 시도: {url}") # 로그 추가
         driver.get(url)
         
-        # 페이지 로딩 대기 (필요 시)
-        time.sleep(2) 
+        time.sleep(3) # 서버 부하 고려하여 대기 시간 약간 늘림
         
-        # 3. 게시글 요소들 찾기
-        # Selenium에서는 CSS_SELECTOR를 사용하여 리스트를 가져옵니다.
+        # [디버깅] 접속 성공 여부 확인
+        print(f"현재 페이지 제목: {driver.title}")
+        
+        # 게시글 요소 찾기
         items = driver.find_elements(By.CSS_SELECTOR, ".board_list .toggle:not(.thead)")
         
+        if not items:
+            print(f"{i} 페이지에서 게시글을 찾지 못했습니다. (페이지 소스 확인 필요)")
+            # 디버깅용: 페이지 소스 일부 출력 (차단되었는지 확인용)
+            # print(driver.page_source[:500]) 
+            continue
+
         for item in items:
             try:
-                # 1. 제목 추출
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
                 
-                # 2. 날짜 추출 (.date 클래스)
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date = date_el.text.strip()
                 date_temp = date.split(". ") 
@@ -46,23 +60,21 @@ try:
                 month =  date_temp[1]
                 day = date_temp[2]
 
-                # 3. 상세 ID 추출 (onclick 속성값 가져오기)
                 link_element = item.find_element(By.TAG_NAME, "a")
-                onclick_text = link_element.get_attribute("onclick") # "fn_detail(3186675);"
+                onclick_text = link_element.get_attribute("onclick")
                 
-                # 정규표현식으로 숫자만 추출
                 code = re.search(r'\d+', onclick_text).group()
                 
-                #link로 연결
                 link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
+                
                 if name and years and month and day and link:
-                    # print(f"{title} {date} {link}")
                     data.append([name, link, years, month, day])
             except Exception as e:
+                # print(f"항목 추출 중 에러: {e}")
                 continue
 
 finally:
-    driver.quit() # 드라이버 종료 (필수)
+    driver.quit()
 
 # 결과 확인
 print(f"\n총 {len(data)} 건 추출 완료")
