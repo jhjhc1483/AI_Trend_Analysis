@@ -9,48 +9,63 @@ import pandas as pd
 import os
 import json
 
-# 1. 옵션 설정 (봇 탐지 우회 및 화면 크기 설정)
-# --- Headless 옵션 설정 ---
+# 1. 옵션 설정
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # 창 띄우지 않음
+chrome_options.add_argument("--headless=new") # 최신 헤드리스 모드 사용 권장
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--disable-gpu")
-# [중요] 봇 탐지 우회 (일반 브라우저인 척 위장)
+# [중요] 화면 크기를 크게 설정하여 PC 버전 레이아웃 강제
+chrome_options.add_argument("--window-size=1920,1080") 
+
+# [중요] 봇 탐지 우회 설정 강화
 chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-# [중요] 일부 보안 옵션 무시
+chrome_options.add_argument("--disable-blink-features=AutomationControlled") # 자동화 제어 흔적 제거
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
+
 chrome_options.add_argument('--ignore-certificate-errors')
 chrome_options.add_argument('--allow-running-insecure-content')
+chrome_options.add_argument('--lang=ko_KR') # 한국어 설정
 
-# 2. 드라이버 실행
-# service = Service(ChromeDriverManager().install())
 service = Service(executable_path=ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# 봇 탐지 우회를 위한 추가 스크립트 실행
+driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
 data = []
 
 try:
     for i in range(1, 4):
         url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
+        print(f"페이지 접속 시도: {url}")
         driver.get(url)
-        driver.implicitly_wait(10) # 묵시적 대기 시간 설정
-        # time.sleep(3) # 서버 부하 고려하여 대기 시간 약간 늘림
-    
-        # [디버깅] 접속 성공 여부 확인
+        
+        # 페이지 로딩 대기 (GitHub Actions는 느릴 수 있으므로 넉넉하게)
+        driver.implicitly_wait(15) 
+        time.sleep(2) 
 
-        # 게시글 요소 찾기
         items = driver.find_elements(By.CSS_SELECTOR, ".board_list .toggle:not(.thead)")
-        driver.implicitly_wait(10) # 묵시적 대기 시간 설정
+        
         if not items:
-            print(f"{i} 페이지에서 게시글을 찾지 못했습니다. (페이지 소스 확인 필요)")
-            # 디버깅용: 페이지 소스 일부 출력 (차단되었는지 확인용)
-            # print(driver.page_source[:500]) 
+            print(f"!!! {i} 페이지에서 게시글을 찾지 못했습니다.")
+            # [디버깅] 제목 출력 (IP 차단 시 'Access Denied' 등이 뜰 수 있음)
+            print(f"현재 페이지 제목: {driver.title}")
+            
+            # [디버깅] 스크린샷 저장 (GitHub Actions Artifact로 확인 가능하게 설정 필요하지만 로그로 힌트 얻기 위함)
+            # driver.save_screenshot(f"error_page_{i}.png") 
+            
+            # [디버깅] 페이지 소스 일부 출력하여 차단 문구 확인
+            print("페이지 소스 일부(500자):")
+            print(driver.page_source[:500])
             continue
 
         for item in items:
             try:
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
+                # print(f"추출된 기사: {name}") # 로그 너무 길어짐 방지
                 
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date = date_el.text.strip()
@@ -63,14 +78,16 @@ try:
                 onclick_text = link_element.get_attribute("onclick")
                 
                 code = re.search(r'\d+', onclick_text).group()
-                
                 link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
                 
                 if name and years and month and day and link:
                     data.append([name, link, years, month, day])
             except Exception as e:
-                # print(f"항목 추출 중 에러: {e}")
+                print(f"항목 파싱 중 에러: {e}")
                 continue
+
+except Exception as e:
+    print(f"전체 프로세스 에러: {e}")
 
 finally:
     driver.quit()
@@ -78,49 +95,37 @@ finally:
 # 결과 확인
 print(f"\n총 {len(data)} 건 추출 완료")
 
+# ... (이하 JSON 저장 로직은 동일) ...
+# 기존 코드의 JSON 저장 부분을 여기에 붙여넣으세요.
 df15 = pd.DataFrame(data, columns=['기사명','링크','년','월','일'])
 full_path = 'codes/msit.json'
-new_data = df15.to_dict('records') # 새 DataFrame을 리스트 오브 딕셔너리 형태로 변환
-# ----------------- JSON 이어 붙이기 및 중복 제거 로직 시작 -----------------
+
+# 경로가 없으면 생성 (GitHub Actions 환경 고려)
+os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+new_data = df15.to_dict('records')
 
 existing_data = []
-
-# 1. 기존 JSON 파일 로드
 if os.path.exists(full_path):
     try:
         with open(full_path, 'r', encoding='utf-8') as f:
-            # 파일이 비어있지 않은지 확인 후 로드
             content = f.read()
             if content:
                 existing_data = json.loads(content)
-            else:
-                print("기존 JSON 파일은 존재하지만 비어 있습니다. 새 데이터만 저장합니다.")
     except Exception as e:
-        print(f"기존 JSON 파일 로드 중 오류 발생 ({e}). 새 데이터만 저장합니다.")
-        existing_data = []
+        print(f"JSON 로드 실패: {e}")
 
-# 2. 새 데이터와 기존 데이터를 합치기
 combined_data = existing_data + new_data
-
-# 3. 중복 제거 (가장 중요한 단계)
-# '링크'를 기준으로 중복 제거를 위한 Set을 생성합니다.
 seen_links = set()
 final_data = []
 
 for item in combined_data:
-    link = item.get('링크') # '링크' 컬럼 값을 가져옵니다.
-    
-    # '링크'가 None이거나 비어있지 않고, 아직 처리하지 않은 링크인 경우에만 추가
+    link = item.get('링크')
     if link and link not in seen_links:
         final_data.append(item)
         seen_links.add(link)
-        
-print(f"총 {len(existing_data)}개의 기존 데이터와 {len(new_data)}개의 새 데이터를 합쳤습니다.")
-print(f"중복을 제거한 후 최종 데이터는 총 {len(final_data)}개입니다.")
 
-# 4. 최종 데이터를 JSON 파일로 저장 (덮어쓰기)
-# indent=4와 force_ascii=False 옵션을 유지하여 가독성 및 한글 보존
 with open(full_path, 'w', encoding='utf-8') as f:
     json.dump(final_data, f, indent=4, ensure_ascii=False)
 
-print(f"\n최종 데이터가 '{full_path}'에 성공적으로 저장되었습니다.")
+print(f"저장 완료. 총 {len(final_data)}개")
