@@ -66,7 +66,7 @@ try:
             try:
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
-                
+                category = "과기정통부 보도자료"
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date_text = date_el.text.strip()
                 
@@ -99,7 +99,7 @@ try:
                     code = code_match.group()
                     link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
                     
-                    data.append([name, link, years, month, day])
+                    data.append([name, category, link, years, month, day])
                     print(f"추출 성공: {name} ({years}-{month}-{day})")
                 else:
                     print(f"링크 코드 추출 실패: {name}")
@@ -118,7 +118,7 @@ print(f"\n총 {len(data)} 건 추출 완료")
 
 # ... (이하 JSON 저장 로직은 동일) ...
 # 기존 코드의 JSON 저장 부분을 여기에 붙여넣으세요.
-df15 = pd.DataFrame(data, columns=['기사명','링크','년','월','일'])
+df15 = pd.DataFrame(data, columns=['기사명','분류', '링크','년','월','일'])
 full_path = 'codes/msit.json'
 
 # 경로가 없으면 생성 (GitHub Actions 환경 고려)
