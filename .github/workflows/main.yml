@@ -53,6 +53,18 @@ jobs:
 
       - name: Run All Python Scripts
         run: |
+          python codes/pycode/etnews.py  
+          python codes/pycode/mnd.py
+          python codes/pycode/aitimes.py
+          python codes/pycode/NIA.py
+          python codes/pycode/STEPI.py
+          python codes/pycode/NIPA.py
+          python codes/pycode/KISDI.py
+          python codes/pycode/dapa.py
+          python codes/pycode/KISTI.py
+          python codes/pycode/iitp.py
+          python codes/pycode/AInews.py
+          python codes/pycode/kookbang.py
           python codes/pycode/msit.py
           python codes/pycode/KISA.py
           python codes/pycode/tta.py
