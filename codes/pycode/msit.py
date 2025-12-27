@@ -10,12 +10,12 @@ import os
 import json
 
 # 1. 옵션 설정 (봇 탐지 우회 및 화면 크기 설정)
+# --- Headless 옵션 설정 ---
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")  # 창 띄우지 않음
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
-# [중요] 화면 크기 설정 (반응형 웹 대응)
-chrome_options.add_argument("--window-size=1920,1080") 
+chrome_options.add_argument("--disable-gpu")
 # [중요] 봇 탐지 우회 (일반 브라우저인 척 위장)
 chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 # [중요] 일부 보안 옵션 무시
@@ -31,14 +31,12 @@ data = []
 try:
     for i in range(1, 4):
         url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
-        print(f"접속 시도: {url}") # 로그 추가
         driver.get(url)
-        
+    
         time.sleep(3) # 서버 부하 고려하여 대기 시간 약간 늘림
-        
+    
         # [디버깅] 접속 성공 여부 확인
-        print(f"현재 페이지 제목: {driver.title}")
-        
+
         # 게시글 요소 찾기
         items = driver.find_elements(By.CSS_SELECTOR, ".board_list .toggle:not(.thead)")
         
