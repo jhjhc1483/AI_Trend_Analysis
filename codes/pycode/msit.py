@@ -11,147 +11,120 @@ import pandas as pd
 import os
 import json
 
-# ==========================================
 # 1. 옵션 설정
-# ==========================================
 chrome_options = Options()
 
-# [디버깅 핵심 1] Headless 모드 끄기 (화면을 직접 확인하기 위함)
-# 문제가 해결되면 다시 주석을 해제하세요.
-# chrome_options.add_argument("--headless") 
+# [핵심 수정 1] 최신 Headless 모드 사용
+chrome_options.add_argument("--headless=new") 
 
+# [핵심 수정 2] 화면 크기를 PC와 동일하게 고정 (반응형 웹 대응)
+chrome_options.add_argument("--window-size=1920,1080")
+chrome_options.add_argument("--start-maximized")
+
+# 리눅스 환경 설정 (CI/CD 필수)
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 chrome_options.add_argument('--ignore-certificate-errors')
 chrome_options.add_argument('--allow-running-insecure-content')
 
-# 2. 드라이버 실행
-print(">>> 브라우저를 실행합니다...")
+# 봇 탐지 우회 User-Agent
+chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+# 드라이버 실행
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=chrome_options)
-driver.maximize_window() # 화면 크게 보기
 
 data = []
 
 try:
     for i in range(1, 4):
-        print(f"\n[INFO] {i} 페이지로 이동 중...")
         url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
         driver.get(url)
         
-        # [디버깅 핵심 2] 로딩 대기 (단순 sleep 대신, 특정 요소가 뜰 때까지 대기 시도)
+        # [핵심 수정 3] 무작정 sleep 대신, 특정 요소가 뜰 때까지 최대 10초 대기
         try:
-            # 게시판 리스트가 뜰 때까지 최대 10초 대기
             WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, ".board_list"))
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".board_list .toggle:not(.thead)"))
             )
-            print("   -> 페이지 로딩 완료 (게시판 요소 감지됨)")
-        except:
-            print("   -> [경고] 게시판 요소를 찾을 수 없습니다. (타임아웃)")
-
-        time.sleep(2) # 추가 안정화 대기
-
-        # [디버깅 핵심 3] 현재 페이지 제목 출력 (차단 여부 확인용)
-        print(f"   -> 현재 페이지 제목: {driver.title}")
+        except Exception:
+            print(f"{i} 페이지 로딩 시간 초과 또는 데이터 없음")
+            # 디버깅용: 페이지 소스를 파일로 저장해서 나중에 artifact로 확인 가능
+            # with open("debug_page_source.html", "w", encoding="utf-8") as f:
+            #     f.write(driver.page_source)
 
         # 게시글 요소 찾기
         items = driver.find_elements(By.CSS_SELECTOR, ".board_list .toggle:not(.thead)")
         
-        print(f"   -> 발견된 게시글 수: {len(items)}개")
-
         if not items:
-            print(f"   -> [ERROR] {i} 페이지에서 게시글을 찾지 못했습니다.")
-            # HTML 구조가 바뀌었거나 차단되었을 수 있음. HTML 일부 출력
-            print("   -> [HTML 소스 앞부분 확인]\n", driver.page_source[:500])
+            print(f"{i} 페이지에서 게시글을 찾지 못했습니다.")
             continue
 
-        count = 0
         for item in items:
             try:
-                # 제목 추출 시도
                 title_el = item.find_element(By.CSS_SELECTOR, "p.title")
                 name = title_el.text.strip()
                 
-                # 날짜 추출 시도
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date = date_el.text.strip()
-                
-                # 날짜 파싱
-                if ". " in date:
-                    date_temp = date.split(". ") 
-                    years = date_temp[0]
-                    month = date_temp[1]
-                    day = date_temp[2]
-                else:
-                    # 날짜 형식이 다를 경우 대비
-                    years, month, day = "0000", "00", "00"
+                date_temp = date.split(". ") 
+                years = date_temp[0]
+                month =  date_temp[1]
+                day = date_temp[2]
 
-                # 링크(onclick) 추출 시도
                 link_element = item.find_element(By.TAG_NAME, "a")
                 onclick_text = link_element.get_attribute("onclick")
                 
-                if onclick_text:
-                    code_match = re.search(r'\d+', onclick_text)
-                    if code_match:
-                        code = code_match.group()
-                        link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
-                        
-                        if name:
-                            data.append([name, link, years, month, day])
-                            count += 1
-                            # 정상 추출 확인용 로그 (너무 많으면 주석 처리)
-                            # print(f"      - 추출 성공: {name[:10]}...")
+                code = re.search(r'\d+', onclick_text).group()
+                
+                link = f"https://www.msit.go.kr/bbs/view.do?sCode=user&mId=307&mPid=208&pageIndex=1&bbsSeqNo=94&nttSeqNo={code}&searchOpt=ALL&searchTxt="
+                
+                if name and years and month and day and link:
+                    data.append([name, link, years, month, day])
             except Exception as e:
-                print(f"      - [항목 에러] 개별 항목 추출 실패: {e}")
+                # print(f"항목 추출 중 에러: {e}")
                 continue
-        
-        print(f"   -> {count}개 항목 데이터 리스트에 추가 완료")
+
+except Exception as e:
+    print(f"전체 프로세스 중 치명적 에러 발생: {e}")
 
 finally:
     driver.quit()
-    print("\n>>> 브라우저를 종료했습니다.")
 
 # 결과 확인
-print(f"\n=============================")
-print(f"총 {len(data)} 건 추출 완료")
-print(f"=============================")
+print(f"\n총 {len(data)} 건 추출 완료")
 
-# ----------------- 저장 로직 (기존과 동일) -----------------
-if len(data) > 0:
-    df15 = pd.DataFrame(data, columns=['기사명','링크','년','월','일'])
-    full_path = 'codes/msit.json'
-    
-    # 폴더가 없으면 생성
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+# --- (이하 JSON 저장 로직은 기존과 동일하므로 유지) ---
+df15 = pd.DataFrame(data, columns=['기사명','링크','년','월','일'])
+full_path = 'codes/msit.json'
+new_data = df15.to_dict('records')
 
-    new_data = df15.to_dict('records')
+# 저장 폴더가 없으면 생성 (안전장치)
+os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
-    existing_data = []
-    if os.path.exists(full_path):
-        try:
-            with open(full_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-                if content:
-                    existing_data = json.loads(content)
-        except Exception as e:
-            print(f"기존 JSON 로드 에러: {e}")
+existing_data = []
 
-    combined_data = existing_data + new_data
-    
-    # 중복 제거
-    seen_links = set()
-    final_data = []
-    for item in combined_data:
-        link = item.get('링크')
-        if link and link not in seen_links:
-            final_data.append(item)
-            seen_links.add(link)
+if os.path.exists(full_path):
+    try:
+        with open(full_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            if content:
+                existing_data = json.loads(content)
+    except Exception as e:
+        print(f"기존 파일 로드 에러: {e}")
+        existing_data = []
 
-    with open(full_path, 'w', encoding='utf-8') as f:
-        json.dump(final_data, f, indent=4, ensure_ascii=False)
+combined_data = existing_data + new_data
+seen_links = set()
+final_data = []
 
-    print(f"저장 완료: {len(final_data)}개 항목 (경로: {full_path})")
-else:
-    print("추출된 데이터가 없어 파일을 저장하지 않았습니다.")
+for item in combined_data:
+    link = item.get('링크')
+    if link and link not in seen_links:
+        final_data.append(item)
+        seen_links.add(link)
+        
+print(f"중복 제거 후 최종 데이터: {len(final_data)}개")
+
+with open(full_path, 'w', encoding='utf-8') as f:
+    json.dump(final_data, f, indent=4, ensure_ascii=False)
