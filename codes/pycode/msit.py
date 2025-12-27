@@ -22,7 +22,7 @@ data = []
 
 try:
     for i in range(1, 4):
-        url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
+        url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94&nttSeqNo=&searchOpt=ALL&searchTxt="
         driver.get(url)
         
         # 페이지 로딩 대기 (필요 시)
