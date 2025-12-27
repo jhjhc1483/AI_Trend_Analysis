@@ -22,7 +22,7 @@ data = []
 
 try:
     for i in range(1, 4):
-        url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94&nttSeqNo=&searchOpt=ALL&searchTxt="
+        url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
         driver.get(url)
         
         # 페이지 로딩 대기 (필요 시)
@@ -41,7 +41,7 @@ try:
                 # 2. 날짜 추출 (.date 클래스)
                 date_el = item.find_element(By.CSS_SELECTOR, ".date")
                 date = date_el.text.strip()
-                date_temp = date.split(". ")
+                date_temp = date.split(". ") 
                 years = date_temp[0]
                 month =  date_temp[1]
                 day = date_temp[2]
