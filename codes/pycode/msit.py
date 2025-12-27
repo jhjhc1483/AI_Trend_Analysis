@@ -23,7 +23,8 @@ chrome_options.add_argument('--ignore-certificate-errors')
 chrome_options.add_argument('--allow-running-insecure-content')
 
 # 2. 드라이버 실행
-service = Service(ChromeDriverManager().install())
+# service = Service(ChromeDriverManager().install())
+service = Service(executable_path=ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 data = []
@@ -32,14 +33,14 @@ try:
     for i in range(1, 4):
         url = f"https://www.msit.go.kr/bbs/list.do?sCode=user&mId=307&mPid=208&pageIndex={i}&bbsSeqNo=94"
         driver.get(url)
-    
-        time.sleep(5) # 서버 부하 고려하여 대기 시간 약간 늘림
+        driver.implicitly_wait(10) # 묵시적 대기 시간 설정
+        # time.sleep(3) # 서버 부하 고려하여 대기 시간 약간 늘림
     
         # [디버깅] 접속 성공 여부 확인
 
         # 게시글 요소 찾기
         items = driver.find_elements(By.CSS_SELECTOR, ".board_list .toggle:not(.thead)")
-        
+        driver.implicitly_wait(10) # 묵시적 대기 시간 설정
         if not items:
             print(f"{i} 페이지에서 게시글을 찾지 못했습니다. (페이지 소스 확인 필요)")
             # 디버깅용: 페이지 소스 일부 출력 (차단되었는지 확인용)
