@@ -5,7 +5,7 @@ import google.generativeai as genai
 import edge_tts
 
 # 1. 환경 변수 설정 (GitHub Secrets에서 가져옴)
-GEMINI_API_KEY = os.environ.get("AIzaSyCgb1fONILC-ELPJBwd6njv8tmdalVEikc")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 # 2. Gemini 설정
 genai.configure(api_key=GEMINI_API_KEY)
