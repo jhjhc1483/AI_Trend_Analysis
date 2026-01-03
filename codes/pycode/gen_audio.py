@@ -54,7 +54,7 @@ async def main():
         # 5. TTS 변환 (Edge TTS - 무료, 고품질)
         # 목소리 옵션: ko-KR-SunHiNeural (여성), ko-KR-InJoonNeural (남성)
         VOICE = "ko-KR-SunHiNeural" 
-        output_file = "codes/audio.mp3"
+        output_file = "public/audio.mp3"
         
         print(f">>> 오디오 변환 시작 (Voice: {VOICE})...")
         communicate = edge_tts.Communicate(script, VOICE)

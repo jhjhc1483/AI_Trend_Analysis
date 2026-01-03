@@ -24,7 +24,7 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
-        python gen_audio.py
+        python codes/gen_audio.py
 
     - name: 결과물(mp3) 커밋 및 푸시
       run: |
