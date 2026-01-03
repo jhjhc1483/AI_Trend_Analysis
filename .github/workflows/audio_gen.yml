@@ -24,12 +24,12 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
-        python codes/gen_audio.py
+        python codes/pycode/gen_audio.py
 
     - name: 결과물(mp3) 커밋 및 푸시
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
-        git add codes/audio.mp3
+        git add public/audio.mp3
         git commit -m "Update audio briefing mp3" || echo "No changes to commit"
         git push
