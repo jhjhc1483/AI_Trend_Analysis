@@ -15,6 +15,8 @@ https://www.iitp.kr/web/lay1/program/S1T62C68/itfind/view.do?seq=02-001-260102-0
 https://nia.or.kr/site/nia_kor/ex/bbs/View.do?cbIdx=32639&bcIdx=28949&parentSeq=28949
 
 
-🎙️오디오 듣기 : https://jhjhc1483.github.io/AI_Trend_Analysis/bf.html
+🎙️오디오 듣기 : https://jhjhc1483.github.io/AI_Trend_Analysis/public/bf.html
+(링크를 꾹 누른 후 '열기'를 누르면 백그라운드 재생이 가능합니다.(안드로이드 기준)
+
 
 by. AI Development Department
