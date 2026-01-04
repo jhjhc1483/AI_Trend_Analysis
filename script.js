@@ -106,7 +106,7 @@ const res2 = await fetch(url, {
     body: JSON.stringify({ ref: "main" })    
 });        
 if (res2.status === 204) {
-    alert("✅ 즐겨찾기에 있는 목록을 일일 동향을 텍스트로 만듭니다.\n\n약 30초 후 페이지를 새로고침 하고 대시보드에서 \n'텍스트추출'을 누르세요.");
+    alert("✅ 즐겨찾기에 있는 목록을 일일 동향 텍스트로 만듭니다.\n\n약 30초 후 대시보드에서 '텍스트추출'을 누르세요.");
 } else if (res2.status === 401) {
     alert("❌ 실패: 토큰이 유효하지 않습니다. (401 Unauthorized)");
 } else if (res2.status === 404) {
@@ -624,7 +624,7 @@ document.getElementById('uploadFavoritesBtn').addEventListener('click', async fu
         }
     }
 
-    alert("✅ 모든 데이터 업로드 완료");
+    alert("✅ 모든 데이터 업로드 완료\n대시보드에서 '텍스트 만들기'를 클릭하세요.");
 });
 
     //로컬로 즐겨찾기에 있는 목록을 json으로 추출하는 함수(안쓰고 있음)
