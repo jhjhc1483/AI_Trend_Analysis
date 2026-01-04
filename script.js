@@ -420,6 +420,7 @@ function createListItem(item) {
             else if (savedCat === '육군') colorClass = 'cat-army';
             else if (savedCat === '민간') colorClass = 'cat-civil';
             else if (savedCat === '기타') colorClass = 'cat-etc';
+            else if (savedCat === '기관') colorClass = 'cat-pub';
             else colorClass = 'cat-default'; // 입력값이 정확히 일치하지 않아도 기타 처리 혹은 그대로 표시
 
             categoryBadge = `<span class="category-badge ${colorClass}">${savedCat}</span>`;
